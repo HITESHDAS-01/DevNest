@@ -11,6 +11,8 @@ import {
   Wrench,
   Plus,
   Loader2,
+  TrendingUp,
+  Zap,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -42,6 +44,13 @@ interface Recommendation {
   priority: number;
   reason: string;
 }
+
+const statConfig = [
+  { label: 'Total Projects', key: 'total' as const, icon: FolderKanban, gradient: 'from-indigo-500 to-purple-600' },
+  { label: 'Active', key: 'active' as const, icon: TrendingUp, gradient: 'from-emerald-500 to-teal-600' },
+  { label: 'Blocked', key: 'blocked' as const, icon: AlertTriangle, gradient: 'from-red-500 to-orange-600' },
+  { label: 'Maintenance', key: 'maintenance' as const, icon: Wrench, gradient: 'from-yellow-500 to-amber-600' },
+];
 
 export default function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -87,125 +96,127 @@ export default function DashboardPage() {
     fetchDashboard();
   }, [fetchDashboard]);
 
-  const statItems = [
-    { label: 'Total Projects', value: stats.total, icon: FolderKanban },
-    { label: 'Active', value: stats.active, icon: FolderKanban },
-    { label: 'Blocked', value: stats.blocked, icon: AlertTriangle },
-    { label: 'In Maintenance', value: stats.maintenance, icon: Wrench },
-  ];
-
   return (
     <div className="space-y-6">
       {error && (
-        <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
+        <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive backdrop-blur-sm">
+          {error}
+        </div>
       )}
 
       {/* Welcome Card */}
       {projects.length === 0 && !loading && (
-        <Card className="border-primary/20 bg-primary/5">
-          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="mb-4 rounded-2xl bg-primary/10 p-4">
-              <FolderKanban className="h-8 w-8 text-primary" />
+        <div className="relative overflow-hidden rounded-2xl glass-hero border border-white/20 dark:border-white/10">
+          <div className="absolute inset-0 mesh-gradient opacity-60" />
+          <div className="glow-dot bg-indigo-500/20 -top-20 -right-20 w-60 h-60 animate-pulse-glow" />
+          <div className="glow-dot bg-purple-500/15 -bottom-16 -left-16 w-48 h-48 animate-pulse-glow delay-500" />
+          <CardContent className="relative flex flex-col items-center justify-center py-20 text-center">
+            <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/25">
+              <FolderKanban className="h-8 w-8 text-white" />
             </div>
-            <h2 className="text-xl font-bold">Welcome to DevNest</h2>
-            <p className="mt-2 max-w-md text-muted-foreground">
+            <h2 className="text-2xl font-bold">Welcome to DevNest</h2>
+            <p className="mt-3 max-w-md text-muted-foreground leading-relaxed">
               Your developer project operating system. Create your first project to start tracking
               tasks, milestones, blockers, and more.
             </p>
-            <Link href="/projects/new" className="mt-6">
-              <Button>
+            <Link href="/projects/new" className="mt-8">
+              <Button size="lg" className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30 transition-all">
                 <Plus className="mr-2 h-4 w-4" />
                 Create Your First Project
               </Button>
             </Link>
           </CardContent>
-        </Card>
+        </div>
       )}
 
       {/* Recommendation Card */}
       {recommendations.length > 0 && (
-        <Card className="border-primary/20 bg-primary/5">
-          <CardHeader className="pb-2">
+        <div className="relative overflow-hidden rounded-2xl glass-card border border-white/20 dark:border-white/10">
+          <div className="absolute inset-0 mesh-gradient opacity-40" />
+          <CardHeader className="relative pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Lightbulb className="h-5 w-5 text-yellow-500" />
+              <CardTitle className="flex items-center gap-2.5 text-lg">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 shadow-sm">
+                  <Zap className="h-4 w-4 text-white" />
+                </div>
                 What should I work on next?
               </CardTitle>
               <Link href="/today">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="glass-card">
                   View All
                 </Button>
               </Link>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="relative">
             <div className="space-y-2">
               {recommendations.map((rec) => (
                 <div
                   key={rec.id}
-                  className="flex items-center justify-between rounded-lg border p-3"
+                  className="flex items-center justify-between rounded-xl border border-white/20 dark:border-white/10 glass-card p-3.5 transition-all hover:shadow-md"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-xs font-bold text-white shadow-sm">
                       {rec.priority}
                     </div>
                     <div>
-                      <p className="font-medium">{rec.title}</p>
+                      <p className="font-medium text-sm">{rec.title}</p>
                       <p className="text-xs text-muted-foreground">
                         {rec.project} — {rec.reason}
                       </p>
                     </div>
                   </div>
-                  <Button size="sm" variant="outline">
+                  <Button size="sm" variant="outline" className="glass-card">
                     Start
                   </Button>
                 </div>
               ))}
             </div>
           </CardContent>
-        </Card>
+        </div>
       )}
 
       {recommendations.length === 0 && !loading && projects.length > 0 && (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-10">
-            <Lightbulb className="mb-3 h-8 w-8 text-muted-foreground/50" />
-            <p className="text-muted-foreground">
-              No recommendations yet. Complete tasks and milestones to get personalized suggestions.
-            </p>
-          </CardContent>
-        </Card>
+        <div className="rounded-2xl glass-card border border-white/20 dark:border-white/10 p-8 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted/50 mx-auto mb-3">
+            <Lightbulb className="h-6 w-6 text-muted-foreground/50" />
+          </div>
+          <p className="text-muted-foreground text-sm">
+            No recommendations yet. Complete tasks and milestones to get personalized suggestions.
+          </p>
+        </div>
       )}
 
       {/* Stats Bar */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        {statItems.map((stat) => (
-          <Card key={stat.label}>
-            <CardContent className="flex items-center gap-4 p-4">
-              <div className="rounded-lg bg-muted p-2">
-                <stat.icon className="h-5 w-5 text-muted-foreground" />
+        {statConfig.map((stat) => {
+          const value = stats[stat.key];
+          return (
+            <div key={stat.label} className="glass-card rounded-xl p-4 transition-all hover:shadow-md">
+              <div className="flex items-center gap-3">
+                <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${stat.gradient} shadow-sm`}>
+                  <stat.icon className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{loading ? '—' : value}</p>
+                  <p className="text-xs text-muted-foreground">{stat.label}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-2xl font-bold">{loading ? '—' : stat.value}</p>
-                <p className="text-xs text-muted-foreground">{stat.label}</p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+            </div>
+          );
+        })}
       </div>
 
       {/* Projects Grid */}
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Projects</h2>
-          <div className="flex gap-2">
-            <Link href="/projects/new">
-              <Button variant="outline" size="sm">
-                <Plus className="mr-1 h-3 w-3" />
-                New
-              </Button>
-            </Link>
-          </div>
+          <Link href="/projects/new">
+            <Button variant="outline" size="sm" className="glass-card">
+              <Plus className="mr-1 h-3 w-3" />
+              New
+            </Button>
+          </Link>
         </div>
 
         {loading ? (
@@ -213,14 +224,14 @@ export default function DashboardPage() {
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : projects.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <FolderKanban className="mb-3 h-10 w-10 text-muted-foreground/50" />
-              <p className="text-muted-foreground">
-                No projects yet. Create your first project to get started.
-              </p>
-            </CardContent>
-          </Card>
+          <div className="rounded-2xl glass-card border border-white/20 dark:border-white/10 p-12 text-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted/50 mx-auto mb-4">
+              <FolderKanban className="h-7 w-7 text-muted-foreground/50" />
+            </div>
+            <p className="text-muted-foreground">
+              No projects yet. Create your first project to get started.
+            </p>
+          </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {projects.map((project) => (

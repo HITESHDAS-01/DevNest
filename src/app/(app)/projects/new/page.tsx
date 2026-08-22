@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, FolderKanban } from 'lucide-react';
 import Link from 'next/link';
 
 const colors = [
@@ -67,110 +66,114 @@ export default function NewProjectPage() {
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/projects">
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" className="glass-card rounded-xl">
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold">New Project</h1>
+          <h1 className="text-2xl font-bold tracking-tight">New Project</h1>
           <p className="text-muted-foreground">
             Create a new project to track its lifecycle
           </p>
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Project Details</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="name">Project Name</Label>
-              <Input
-                id="name"
-                placeholder="My Awesome Project"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-              {name && (
-                <p className="text-xs text-muted-foreground">
-                  Slug: /projects/{slug}
-                </p>
-              )}
-            </div>
+      <div className="glass-card rounded-2xl border border-white/20 dark:border-white/10 p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500/10 to-purple-500/10">
+            <FolderKanban className="h-5 w-5 text-indigo-500" />
+          </div>
+          <h3 className="text-sm font-semibold">Project Details</h3>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="name" className="text-sm font-medium">Project Name</Label>
+            <Input
+              id="name"
+              placeholder="My Awesome Project"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="glass-card border-white/20 dark:border-white/10 h-11"
+              required
+            />
+            {name && (
+              <p className="text-xs text-muted-foreground">
+                Slug: /projects/{slug}
+              </p>
+            )}
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                placeholder="What is this project about? What problem does it solve?"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={3}
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="description" className="text-sm font-medium">Description</Label>
+            <Textarea
+              id="description"
+              placeholder="What is this project about? What problem does it solve?"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              className="glass-card border-white/20 dark:border-white/10"
+            />
+          </div>
 
-            <div className="space-y-2">
-              <Label>Color</Label>
-              <div className="flex gap-2">
-                {colors.map((c) => (
-                  <button
-                    key={c.value}
-                    type="button"
-                    onClick={() => setColor(c.value)}
-                    className={`h-8 w-8 rounded-full transition-all ${
-                      color === c.value
-                        ? 'ring-2 ring-offset-2 ring-primary'
-                        : 'hover:scale-110'
-                    }`}
-                    style={{ backgroundColor: c.value }}
-                  />
-                ))}
-              </div>
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Color</Label>
+            <div className="flex gap-2.5">
+              {colors.map((c) => (
+                <button
+                  key={c.value}
+                  type="button"
+                  onClick={() => setColor(c.value)}
+                  className={`h-9 w-9 rounded-full transition-all shadow-sm ${
+                    color === c.value
+                      ? 'ring-2 ring-offset-2 ring-primary scale-110'
+                      : 'hover:scale-110 hover:shadow-md'
+                  }`}
+                  style={{ backgroundColor: c.value }}
+                />
+              ))}
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="repo">GitHub Repository (optional)</Label>
-              <Input
-                id="repo"
-                placeholder="https://github.com/username/repo"
-                value={repoUrl}
-                onChange={(e) => setRepoUrl(e.target.value)}
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="repo" className="text-sm font-medium">GitHub Repository (optional)</Label>
+            <Input
+              id="repo"
+              placeholder="https://github.com/username/repo"
+              value={repoUrl}
+              onChange={(e) => setRepoUrl(e.target.value)}
+              className="glass-card border-white/20 dark:border-white/10 h-11"
+            />
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="priority">Priority</Label>
-              <Select value={priority} onValueChange={(v) => setPriority(v || '3')}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">★☆☆☆☆ Low</SelectItem>
-                  <SelectItem value="2">★★☆☆☆ Below Average</SelectItem>
-                  <SelectItem value="3">★★★☆☆ Normal</SelectItem>
-                  <SelectItem value="4">★★★★☆ High</SelectItem>
-                  <SelectItem value="5">★★★★★ Critical</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="priority" className="text-sm font-medium">Priority</Label>
+            <Select value={priority} onValueChange={(v) => setPriority(v || '3')}>
+              <SelectTrigger className="glass-card border-white/20 dark:border-white/10 h-11">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">★☆☆☆☆ Low</SelectItem>
+                <SelectItem value="2">★★☆☆☆ Below Average</SelectItem>
+                <SelectItem value="3">★★★☆☆ Normal</SelectItem>
+                <SelectItem value="4">★★★★☆ High</SelectItem>
+                <SelectItem value="5">★★★★★ Critical</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-            <div className="flex justify-end gap-2">
-              <Link href="/projects">
-                <Button type="button" variant="outline">
-                  Cancel
-                </Button>
-              </Link>
-              <Button type="submit" disabled={loading || !name}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Create Project
+          <div className="flex justify-end gap-2 pt-2">
+            <Link href="/projects">
+              <Button type="button" variant="outline" className="glass-card">
+                Cancel
               </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+            </Link>
+            <Button type="submit" disabled={loading || !name} className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-md shadow-indigo-500/20">
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Create Project
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

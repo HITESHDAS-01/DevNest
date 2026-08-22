@@ -24,12 +24,12 @@ interface SearchResult {
 
 const typeConfig: Record<
   string,
-  { icon: typeof FolderKanban; color: string; label: string }
+  { icon: typeof FolderKanban; gradient: string; label: string }
 > = {
-  project: { icon: FolderKanban, color: '#6366f1', label: 'Project' },
-  task: { icon: FileText, color: '#ef4444', label: 'Task' },
-  note: { icon: FileText, color: '#3b82f6', label: 'Note' },
-  decision: { icon: Lightbulb, color: '#8b5cf6', label: 'Decision' },
+  project: { icon: FolderKanban, gradient: 'from-indigo-500 to-purple-600', label: 'Project' },
+  task: { icon: FileText, gradient: 'from-red-500 to-orange-600', label: 'Task' },
+  note: { icon: FileText, gradient: 'from-blue-500 to-cyan-600', label: 'Note' },
+  decision: { icon: Lightbulb, gradient: 'from-purple-500 to-pink-600', label: 'Decision' },
 };
 
 export default function SearchPage() {
@@ -85,37 +85,36 @@ export default function SearchPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Search</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Search</h1>
         <p className="text-muted-foreground">
           Search across all your projects, tasks, notes, and decisions
         </p>
       </div>
 
       <div className="relative">
-        <SearchIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+        <SearchIcon className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
         <Input
           placeholder="Search projects, tasks, notes, decisions..."
           value={query}
           onChange={(e) => handleInputChange(e.target.value)}
-          className="h-11 pl-11 text-base"
+          className="h-12 pl-12 text-base glass-card border-white/20 dark:border-white/10 rounded-xl"
           autoFocus
         />
         {loading && (
-          <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+          <Loader2 className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
         )}
       </div>
 
       {!searched && !loading && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="rounded-2xl bg-muted p-4 mb-4">
-            <Sparkles className="h-8 w-8 text-muted-foreground/50" />
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500/10 to-purple-500/10 mb-5">
+            <Sparkles className="h-8 w-8 text-indigo-500/40" />
           </div>
           <h2 className="text-lg font-medium text-foreground mb-1">
             Type to search
           </h2>
           <p className="text-sm text-muted-foreground max-w-sm">
-            Find anything across your projects, tasks, notes, and architectural
-            decisions
+            Find anything across your projects, tasks, notes, and architectural decisions
           </p>
         </div>
       )}
@@ -123,23 +122,23 @@ export default function SearchPage() {
       {loading && (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <Card key={i}>
-              <CardContent className="flex items-center gap-4 p-4">
-                <div className="h-10 w-10 animate-pulse rounded-lg bg-muted" />
+            <div key={i} className="glass-card rounded-xl border border-white/20 dark:border-white/10 p-4">
+              <div className="flex items-center gap-4">
+                <div className="h-10 w-10 animate-pulse rounded-xl bg-muted" />
                 <div className="flex-1 space-y-2">
                   <div className="h-4 w-48 animate-pulse rounded bg-muted" />
                   <div className="h-3 w-72 animate-pulse rounded bg-muted" />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
       )}
 
       {!loading && searched && results.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="rounded-2xl bg-muted p-4 mb-4">
-            <SearchIcon className="h-8 w-8 text-muted-foreground/50" />
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted/50 mb-5">
+            <SearchIcon className="h-8 w-8 text-muted-foreground/40" />
           </div>
           <h2 className="text-lg font-medium text-foreground mb-1">
             No results found
@@ -162,7 +161,7 @@ export default function SearchPage() {
             const Icon = config.icon;
             return (
               <div key={type} className="space-y-2">
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                   {config.label}s{' '}
                   <span className="text-muted-foreground/60">
                     ({items.length})
@@ -170,19 +169,15 @@ export default function SearchPage() {
                 </h3>
                 <div className="space-y-2">
                   {items.map((result) => (
-                    <Card
+                    <div
                       key={result.id}
-                      className="cursor-pointer transition-colors hover:bg-muted/50"
+                      className="glass-card rounded-xl border border-white/20 dark:border-white/10 p-4 cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5"
                     >
-                      <CardContent className="flex items-center gap-4 p-4">
+                      <div className="flex items-center gap-4">
                         <div
-                          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
-                          style={{ backgroundColor: `${config.color}15` }}
+                          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${config.gradient} shadow-sm`}
                         >
-                          <Icon
-                            className="h-5 w-5"
-                            style={{ color: config.color }}
-                          />
+                          <Icon className="h-5 w-5 text-white" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
@@ -191,19 +186,19 @@ export default function SearchPage() {
                             </span>
                             <Badge
                               variant="secondary"
-                              className="shrink-0 text-xs"
+                              className="shrink-0 text-[11px] border"
                             >
                               {config.label}
                             </Badge>
                           </div>
                           {result.description && (
-                            <p className="text-sm text-muted-foreground truncate">
+                            <p className="text-sm text-muted-foreground truncate mt-0.5">
                               {result.description}
                             </p>
                           )}
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>

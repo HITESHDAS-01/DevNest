@@ -27,7 +27,7 @@ export function ProjectNav({ projectSlug }: ProjectNavProps) {
   const basePath = `/projects/${projectSlug}`;
 
   return (
-    <nav className="flex space-x-1 overflow-x-auto border-b">
+    <nav className="flex space-x-1 overflow-x-auto rounded-xl glass-card border border-white/20 dark:border-white/10 p-1">
       {navigation.map((item) => {
         const href = `${basePath}${item.href}`;
         const isActive =
@@ -38,10 +38,10 @@ export function ProjectNav({ projectSlug }: ProjectNavProps) {
             key={item.name}
             href={href}
             className={cn(
-              'whitespace-nowrap px-4 py-3 text-sm font-medium transition-colors',
+              'whitespace-nowrap rounded-lg px-3.5 py-2 text-sm font-medium transition-all',
               isActive
-                ? 'border-b-2 border-primary text-primary'
-                : 'text-muted-foreground hover:text-foreground'
+                ? 'bg-gradient-to-r from-indigo-500/15 to-purple-500/10 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                : 'text-muted-foreground hover:bg-white/50 dark:hover:bg-white/5 hover:text-foreground'
             )}
           >
             {item.name}

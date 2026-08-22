@@ -5,9 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth-provider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
@@ -35,54 +33,67 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-2">
-            <span className="text-4xl">🪹</span>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 relative overflow-hidden">
+      {/* Background decorations */}
+      <div className="absolute inset-0 mesh-gradient" />
+      <div className="glow-dot bg-indigo-500/15 top-20 left-1/4 animate-pulse-glow" />
+      <div className="glow-dot bg-purple-500/10 bottom-20 right-1/4 animate-pulse-glow delay-1000" />
+      <div className="glow-dot bg-pink-500/10 top-1/2 right-1/3 animate-pulse-glow delay-500" />
+
+      <div className="relative w-full max-w-md mx-4">
+        <div className="glass-card rounded-2xl border border-white/20 dark:border-white/10 shadow-2xl shadow-indigo-500/5 p-8">
+          <div className="text-center mb-8">
+            <div className="flex justify-center mb-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/25">
+                <span className="text-2xl">🪹</span>
+              </div>
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight">Welcome to DevNest</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Your developer project operating system
+            </p>
           </div>
-          <CardTitle className="text-2xl">Welcome to DevNest</CardTitle>
-          <CardDescription>
-            Your developer project operating system
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-sm font-medium">Email</Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="dev@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                className="h-11 glass-card border-white/20 dark:border-white/10"
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-sm font-medium">Password</Label>
               <Input
                 id="password"
                 type="password"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                className="h-11 glass-card border-white/20 dark:border-white/10"
                 required
               />
             </div>
             {error && (
-              <p className="text-sm text-destructive">{error}</p>
+              <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive">
+                {error}
+              </div>
             )}
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full h-11 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30 transition-all" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Sign In (Demo Mode)
             </Button>
           </form>
-          <p className="text-xs text-center text-muted-foreground">
+          <p className="mt-6 text-xs text-center text-muted-foreground">
             Enter any email and password to try DevNest
           </p>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
