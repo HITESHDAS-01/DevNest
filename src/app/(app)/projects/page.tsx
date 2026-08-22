@@ -1,68 +1,49 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect, useCallback } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ProjectCard } from '@/components/project/project-card';
-import { Plus } from 'lucide-react';
+import { Plus, FolderKanban, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
-// Demo data
-const demoProjects = [
-  {
-    id: '1',
-    name: 'TaskFlow',
-    slug: 'taskflow',
-    description: 'Lightweight task management API for small teams',
-    color: '#6366f1',
-    stage: 'development',
-    status: 'active',
-    health: 'green',
-    priority: 4,
-    progress: 68,
-    _count: { tasks: 12, blockers: 2 },
-  },
-  {
-    id: '2',
-    name: 'DevNest',
-    slug: 'devnest',
-    description: 'Developer project operating system',
-    color: '#8b5cf6',
-    stage: 'development',
-    status: 'active',
-    health: 'yellow',
-    priority: 5,
-    progress: 35,
-    _count: { tasks: 8, blockers: 0 },
-  },
-  {
-    id: '3',
-    name: 'SiteGen',
-    slug: 'sitegen',
-    description: 'Static site generator for documentation',
-    color: '#10b981',
-    stage: 'maintenance',
-    status: 'active',
-    health: 'green',
-    priority: 3,
-    progress: 100,
-    _count: { tasks: 5, blockers: 0 },
-  },
-  {
-    id: '4',
-    name: 'APIProxy',
-    slug: 'apiproxy',
-    description: 'API gateway and rate limiting service',
-    color: '#f59e0b',
-    stage: 'development',
-    status: 'active',
-    health: 'red',
-    priority: 2,
-    progress: 45,
-    _count: { tasks: 6, blockers: 3 },
-  },
-];
+interface Project {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string | null;
+  color?: string | null;
+  stage: string;
+  status: string;
+  health: string;
+  priority?: number | null;
+  progress?: number | null;
+  _count?: { tasks: number; blockers: number };
+}
 
 export default function ProjectsPage() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchProjects = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/projects');
+      if (res.ok) {
+        const data = await res.json();
+        setProjects(data.projects || data || []);
+      }
+    } catch {
+      // show empty state
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -80,11 +61,33 @@ export default function ProjectsPage() {
         </Link>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {demoProjects.map((project) => (
-          <ProjectCard key={project.id} project={project} />
-        ))}
-      </div>
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : projects.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <FolderKanban className="mb-3 h-10 w-10 text-muted-foreground/50" />
+            <p className="font-medium text-muted-foreground">No projects yet</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Create your first project to get started.
+            </p>
+            <Link href="/projects/new" className="mt-4">
+              <Button size="sm">
+                <Plus className="mr-2 h-4 w-4" />
+                Create Project
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {projects.map((project) => (
+            <ProjectCard key={project.id} project={project} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

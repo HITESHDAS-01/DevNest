@@ -17,14 +17,7 @@ import {
   DialogFooter,
   DialogDescription,
 } from '@/components/ui/dialog';
-import {
-  Plus,
-  Pencil,
-  Trash2,
-  Calendar,
-  Target,
-  CheckCircle2,
-} from 'lucide-react';
+import { Plus, Pencil, Trash2, Calendar, Target, Loader2 } from 'lucide-react';
 
 interface Milestone {
   id: string;
@@ -66,7 +59,11 @@ const emptyForm: {
   status: 'pending',
 };
 
-export default function MilestonesPage({ params }: { params: Promise<{ slug: string }> }) {
+export default function MilestonesPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -75,6 +72,11 @@ export default function MilestonesPage({ params }: { params: Promise<{ slug: str
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [projectSlug, setProjectSlug] = useState('');
+
+  useEffect(() => {
+    params.then(({ slug }) => setProjectSlug(slug));
+  }, [params]);
 
   const fetchMilestones = useCallback(async () => {
     try {
@@ -164,19 +166,28 @@ export default function MilestonesPage({ params }: { params: Promise<{ slug: str
         </Button>
       </div>
 
-      <ProjectNav projectSlug="demo-project" />
+      <ProjectNav projectSlug={projectSlug} />
 
       {error && (
         <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
       )}
 
       {loading ? (
-        <div className="py-12 text-center text-muted-foreground">Loading milestones...</div>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
       ) : milestones.length === 0 ? (
         <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
+          <CardContent className="flex flex-col items-center justify-center py-16">
             <Target className="mb-3 h-10 w-10 text-muted-foreground/50" />
-            <p className="text-muted-foreground">No milestones yet. Create your first milestone.</p>
+            <p className="font-medium text-muted-foreground">No milestones yet</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Create your first milestone to track progress.
+            </p>
+            <Button size="sm" className="mt-4" onClick={openCreate}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Milestone
+            </Button>
           </CardContent>
         </Card>
       ) : (
@@ -204,9 +215,7 @@ export default function MilestonesPage({ params }: { params: Promise<{ slug: str
                   )}
                   <div className="space-y-1">
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>
-                        {m.completedTaskCount}/{m.taskCount} tasks
-                      </span>
+                      <span>{m.completedTaskCount}/{m.taskCount} tasks</span>
                       <span>{progress}%</span>
                     </div>
                     <div className="h-2 w-full overflow-hidden rounded-full bg-muted">

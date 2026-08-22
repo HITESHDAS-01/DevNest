@@ -1,13 +1,12 @@
 ﻿'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { ProjectNav } from '@/components/project/project-nav';
 import {
   Dialog,
@@ -17,14 +16,7 @@ import {
   DialogFooter,
   DialogDescription,
 } from '@/components/ui/dialog';
-import {
-  Plus,
-  Pencil,
-  Trash2,
-  Lightbulb,
-  ArrowUp,
-  ArrowDown,
-} from 'lucide-react';
+import { Plus, Pencil, Trash2, Lightbulb, ArrowUp, ArrowDown, Loader2 } from 'lucide-react';
 
 interface Idea {
   id: string;
@@ -83,7 +75,11 @@ const emptyForm: {
   status: 'backlog',
 };
 
-export default function IdeasPage({ params }: { params: Promise<{ slug: string }> }) {
+export default function IdeasPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -93,6 +89,11 @@ export default function IdeasPage({ params }: { params: Promise<{ slug: string }
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [projectSlug, setProjectSlug] = useState('');
+
+  useEffect(() => {
+    params.then(({ slug }) => setProjectSlug(slug));
+  }, [params]);
 
   const fetchIdeas = useCallback(async () => {
     try {
@@ -202,7 +203,7 @@ export default function IdeasPage({ params }: { params: Promise<{ slug: string }
         </Button>
       </div>
 
-      <ProjectNav projectSlug="demo-project" />
+      <ProjectNav projectSlug={projectSlug} />
 
       {error && (
         <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
@@ -229,16 +230,29 @@ export default function IdeasPage({ params }: { params: Promise<{ slug: string }
       </div>
 
       {loading ? (
-        <div className="py-12 text-center text-muted-foreground">Loading ideas...</div>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
       ) : sortedIdeas.length === 0 ? (
         <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
+          <CardContent className="flex flex-col items-center justify-center py-16">
             <Lightbulb className="mb-3 h-10 w-10 text-muted-foreground/50" />
-            <p className="text-muted-foreground">
+            <p className="font-medium text-muted-foreground">
               {statusFilter === 'all'
-                ? 'No ideas yet. Add your first idea.'
-                : `No ideas with status "${statusLabels[statusFilter]}".`}
+                ? 'No ideas yet'
+                : `No ideas with status "${statusLabels[statusFilter]}"`}
             </p>
+            {statusFilter === 'all' && (
+              <p className="mt-1 text-sm text-muted-foreground">
+                Add your first idea or feature request.
+              </p>
+            )}
+            {statusFilter === 'all' && (
+              <Button size="sm" className="mt-4" onClick={openCreate}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Idea
+              </Button>
+            )}
           </CardContent>
         </Card>
       ) : (

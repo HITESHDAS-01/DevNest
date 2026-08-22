@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { ProjectNav } from '@/components/project/project-nav';
 import {
   Dialog,
@@ -24,6 +23,7 @@ import {
   CheckCircle2,
   AlertTriangle,
   Circle,
+  Loader2,
 } from 'lucide-react';
 
 interface Blocker {
@@ -48,10 +48,10 @@ const severityColors: Record<string, string> = {
 };
 
 const severityIcons: Record<string, string> = {
-  low: '○',
-  medium: '◐',
-  high: '●',
-  critical: '◉',
+  low: '\u25CB',
+  medium: '\u25D0',
+  high: '\u25CF',
+  critical: '\u25C9',
 };
 
 type BlockerSeverity = 'low' | 'medium' | 'high' | 'critical';
@@ -66,7 +66,11 @@ const emptyForm: {
   severity: 'medium',
 };
 
-export default function BlockersPage({ params }: { params: Promise<{ slug: string }> }) {
+export default function BlockersPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const [blockers, setBlockers] = useState<Blocker[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -76,6 +80,11 @@ export default function BlockersPage({ params }: { params: Promise<{ slug: strin
   const [saving, setSaving] = useState(false);
   const [statusFilter, setStatusFilter] = useState<'all' | 'open' | 'resolved'>('all');
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [projectSlug, setProjectSlug] = useState('');
+
+  useEffect(() => {
+    params.then(({ slug }) => setProjectSlug(slug));
+  }, [params]);
 
   const fetchBlockers = useCallback(async () => {
     try {
@@ -187,7 +196,7 @@ export default function BlockersPage({ params }: { params: Promise<{ slug: strin
         </Button>
       </div>
 
-      <ProjectNav projectSlug="demo-project" />
+      <ProjectNav projectSlug={projectSlug} />
 
       {error && (
         <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
@@ -209,16 +218,23 @@ export default function BlockersPage({ params }: { params: Promise<{ slug: strin
       </div>
 
       {loading ? (
-        <div className="py-12 text-center text-muted-foreground">Loading blockers...</div>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
       ) : filtered.length === 0 ? (
         <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
+          <CardContent className="flex flex-col items-center justify-center py-16">
             <CheckCircle2 className="mb-3 h-10 w-10 text-green-500/50" />
-            <p className="text-muted-foreground">
+            <p className="font-medium text-muted-foreground">
               {statusFilter === 'all'
-                ? 'No blockers yet. Great!'
+                ? 'No blockers. Great!'
                 : `No ${statusFilter} blockers.`}
             </p>
+            {statusFilter === 'all' && (
+              <p className="mt-1 text-sm text-muted-foreground">
+                Your project is running smoothly.
+              </p>
+            )}
           </CardContent>
         </Card>
       ) : (
@@ -318,9 +334,9 @@ export default function BlockersPage({ params }: { params: Promise<{ slug: strin
               <select
                 id="severity"
                 value={form.severity}
-                  onChange={(e) =>
-                    setForm({ ...form, severity: e.target.value as BlockerSeverity })
-                  }
+                onChange={(e) =>
+                  setForm({ ...form, severity: e.target.value as BlockerSeverity })
+                }
                 className="flex h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               >
                 {severityOptions.map((s) => (

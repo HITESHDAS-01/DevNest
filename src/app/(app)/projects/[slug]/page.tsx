@@ -1,9 +1,12 @@
 'use client';
 
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { ProjectNav } from '@/components/project/project-nav';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -12,19 +15,41 @@ import {
   Target,
   Star,
   Zap,
+  Loader2,
+  Plus,
 } from 'lucide-react';
 
-const project = {
-  id: '1',
-  name: 'TaskFlow',
-  slug: 'taskflow',
-  description: 'Lightweight task management API for small teams',
-  color: '#6366f1',
-  stage: 'development',
-  health: 'green',
-  priority: 4,
-  progress: 68,
-};
+interface ProjectData {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  color: string;
+  stage: string;
+  health: string;
+  priority: number;
+  progress: number;
+}
+
+interface Blocker {
+  id: string;
+  title: string;
+  severity: string;
+}
+
+interface Task {
+  id: string;
+  title: string;
+  priority: number;
+  estimate: string;
+}
+
+interface Activity {
+  id: string;
+  type: string;
+  title: string;
+  time: string;
+}
 
 const stageLabels: Record<string, string> = {
   idea: 'Idea',
@@ -72,34 +97,6 @@ const healthConfig: Record<
   },
 };
 
-const phases = [
-  { stage: 'idea', name: 'Idea', status: 'completed' as const },
-  { stage: 'planning', name: 'Planning', status: 'completed' as const },
-  { stage: 'development', name: 'Development', status: 'active' as const },
-  { stage: 'testing', name: 'Testing', status: 'pending' as const },
-  { stage: 'launch', name: 'Launch', status: 'pending' as const },
-  { stage: 'maintenance', name: 'Maintenance', status: 'pending' as const },
-];
-
-const blockers = [
-  { id: '1', title: 'API rate limiting not implemented', severity: 'high' },
-  { id: '2', title: 'Auth middleware edge case', severity: 'medium' },
-];
-
-const nextTasks = [
-  { id: '1', title: 'Fix auth middleware bug', priority: 1, estimate: '2h' },
-  { id: '2', title: 'Add rate limiting', priority: 1, estimate: '4h' },
-  { id: '3', title: 'Write API docs', priority: 2, estimate: '3h' },
-  { id: '4', title: 'Database migration', priority: 2, estimate: '1h' },
-];
-
-const recentActivity = [
-  { id: '1', type: 'decision', title: 'Use Redis for session cache', time: '2h ago' },
-  { id: '2', type: 'task_done', title: 'Setup CI pipeline', time: '1d ago' },
-  { id: '3', type: 'note', title: 'Performance benchmarks', time: '2d ago' },
-  { id: '4', type: 'blocker', title: 'API rate limiting blocker added', time: '3d ago' },
-];
-
 const activityIcons: Record<string, typeof Target> = {
   decision: Target,
   task_done: CheckCircle2,
@@ -114,11 +111,95 @@ const activityColors: Record<string, string> = {
   blocker: 'text-red-500',
 };
 
-const hc = healthConfig[project.health];
+export default function ProjectOverviewPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const [project, setProject] = useState<ProjectData | null>(null);
+  const [blockers, setBlockers] = useState<Blocker[]>([]);
+  const [nextTasks, setNextTasks] = useState<Task[]>([]);
+  const [recentActivity, setRecentActivity] = useState<Activity[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-export default function ProjectOverviewPage() {
+  const fetchData = useCallback(async (slug: string) => {
+    try {
+      setLoading(true);
+      const [projectRes, blockersRes, tasksRes, activityRes] = await Promise.allSettled([
+        fetch(`/api/projects/${slug}`),
+        fetch(`/api/projects/${slug}/blockers`),
+        fetch(`/api/projects/${slug}/tasks`),
+        fetch(`/api/projects/${slug}/activity`),
+      ]);
+
+      if (projectRes.status === 'fulfilled' && projectRes.value.ok) {
+        const data = await projectRes.value.json();
+        setProject(data.project || data);
+      }
+
+      if (blockersRes.status === 'fulfilled' && blockersRes.value.ok) {
+        const data = await blockersRes.value.json();
+        setBlockers((data.blockers || data || []).filter((b: Blocker) => b.severity !== 'resolved'));
+      }
+
+      if (tasksRes.status === 'fulfilled' && tasksRes.value.ok) {
+        const data = await tasksRes.value.json();
+        const tasks: Task[] = data.tasks || data || [];
+        setNextTasks(tasks.filter((t) => t.priority <= 2).slice(0, 4));
+      }
+
+      if (activityRes.status === 'fulfilled' && activityRes.value.ok) {
+        const data = await activityRes.value.json();
+        setRecentActivity((data.activity || data || []).slice(0, 4));
+      }
+
+      setError('');
+    } catch {
+      setError('Failed to load project data');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    params.then(({ slug }) => fetchData(slug));
+  }, [params, fetchData]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (error || !project) {
+    return (
+      <div className="space-y-6">
+        <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+          {error || 'Project not found'}
+        </div>
+      </div>
+    );
+  }
+
+  const hc = healthConfig[project.health] || healthConfig.green;
+  const phases = [
+    { stage: 'idea', name: 'Idea', status: 'completed' as const },
+    { stage: 'planning', name: 'Planning', status: 'completed' as const },
+    { stage: 'development', name: 'Development', status: project.stage === 'development' ? ('active' as const) : ('pending' as const) },
+    { stage: 'testing', name: 'Testing', status: 'pending' as const },
+    { stage: 'launch', name: 'Launch', status: 'pending' as const },
+    { stage: 'maintenance', name: 'Maintenance', status: 'pending' as const },
+  ];
+
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
+      )}
+
       {/* Header */}
       <div className="flex items-start gap-4">
         <div
@@ -236,9 +317,10 @@ export default function ProjectOverviewPage() {
           </CardHeader>
           <CardContent>
             {blockers.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-4 text-center">
-                No active blockers
-              </p>
+              <div className="flex flex-col items-center justify-center py-8">
+                <CheckCircle2 className="mb-2 h-8 w-8 text-green-500/50" />
+                <p className="text-sm text-muted-foreground">No active blockers</p>
+              </div>
             ) : (
               <div className="space-y-2">
                 {blockers.map((blocker) => (
@@ -250,7 +332,7 @@ export default function ProjectOverviewPage() {
                       <div
                         className={cn(
                           'h-2 w-2 shrink-0 rounded-full',
-                          blocker.severity === 'high'
+                          blocker.severity === 'high' || blocker.severity === 'critical'
                             ? 'bg-red-500'
                             : 'bg-yellow-500'
                         )}
@@ -261,7 +343,9 @@ export default function ProjectOverviewPage() {
                     </div>
                     <Badge
                       variant={
-                        blocker.severity === 'high' ? 'destructive' : 'secondary'
+                        blocker.severity === 'high' || blocker.severity === 'critical'
+                          ? 'destructive'
+                          : 'secondary'
                       }
                       className="shrink-0 ml-2"
                     >
@@ -282,26 +366,39 @@ export default function ProjectOverviewPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              {nextTasks.map((task) => (
-                <div
-                  key={task.id}
-                  className="flex items-center justify-between rounded-lg border p-3 transition-colors hover:bg-muted/30"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
-                      {task.priority}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">{task.title}</p>
-                      <p className="text-[11px] text-muted-foreground">
-                        ~{task.estimate}
-                      </p>
+            {nextTasks.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8">
+                <ArrowRight className="mb-2 h-8 w-8 text-muted-foreground/30" />
+                <p className="text-sm text-muted-foreground">No tasks yet</p>
+                <Link href={`/projects/${project.slug}/tasks`}>
+                  <Button variant="outline" size="sm" className="mt-3">
+                    <Plus className="mr-1 h-3 w-3" />
+                    Add Task
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {nextTasks.map((task) => (
+                  <div
+                    key={task.id}
+                    className="flex items-center justify-between rounded-lg border p-3 transition-colors hover:bg-muted/30"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
+                        {task.priority}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{task.title}</p>
+                        <p className="text-[11px] text-muted-foreground">
+                          ~{task.estimate}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -314,28 +411,35 @@ export default function ProjectOverviewPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-0">
-            {recentActivity.map((activity, i) => {
-              const Icon = activityIcons[activity.type];
-              return (
-                <div
-                  key={activity.id}
-                  className={cn(
-                    'flex items-center gap-3 py-2.5',
-                    i < recentActivity.length - 1 && 'border-b border-border/50'
-                  )}
-                >
-                  <Icon
-                    className={cn('h-4 w-4 shrink-0', activityColors[activity.type])}
-                  />
-                  <span className="flex-1 text-sm truncate">{activity.title}</span>
-                  <span className="text-xs text-muted-foreground shrink-0">
-                    {activity.time}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
+          {recentActivity.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8">
+              <Clock className="mb-2 h-8 w-8 text-muted-foreground/30" />
+              <p className="text-sm text-muted-foreground">No recent activity</p>
+            </div>
+          ) : (
+            <div className="space-y-0">
+              {recentActivity.map((activity, i) => {
+                const Icon = activityIcons[activity.type] || Clock;
+                return (
+                  <div
+                    key={activity.id}
+                    className={cn(
+                      'flex items-center gap-3 py-2.5',
+                      i < recentActivity.length - 1 && 'border-b border-border/50'
+                    )}
+                  >
+                    <Icon
+                      className={cn('h-4 w-4 shrink-0', activityColors[activity.type] || 'text-muted-foreground')}
+                    />
+                    <span className="flex-1 text-sm truncate">{activity.title}</span>
+                    <span className="text-xs text-muted-foreground shrink-0">
+                      {activity.time}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -17,14 +17,7 @@ import {
   DialogFooter,
   DialogDescription,
 } from '@/components/ui/dialog';
-import {
-  Plus,
-  Pencil,
-  Trash2,
-  GitBranch,
-  CheckCircle2,
-  Circle,
-} from 'lucide-react';
+import { Plus, Pencil, Trash2, GitBranch, CheckCircle2, Circle, Loader2 } from 'lucide-react';
 
 interface Decision {
   id: string;
@@ -46,7 +39,11 @@ const emptyForm = {
   rationale: '',
 };
 
-export default function DecisionsPage({ params }: { params: Promise<{ slug: string }> }) {
+export default function DecisionsPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const [decisions, setDecisions] = useState<Decision[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -55,6 +52,11 @@ export default function DecisionsPage({ params }: { params: Promise<{ slug: stri
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [projectSlug, setProjectSlug] = useState('');
+
+  useEffect(() => {
+    params.then(({ slug }) => setProjectSlug(slug));
+  }, [params]);
 
   const fetchDecisions = useCallback(async () => {
     try {
@@ -155,19 +157,28 @@ export default function DecisionsPage({ params }: { params: Promise<{ slug: stri
         </Button>
       </div>
 
-      <ProjectNav projectSlug="demo-project" />
+      <ProjectNav projectSlug={projectSlug} />
 
       {error && (
         <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
       )}
 
       {loading ? (
-        <div className="py-12 text-center text-muted-foreground">Loading decisions...</div>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
       ) : decisions.length === 0 ? (
         <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
+          <CardContent className="flex flex-col items-center justify-center py-16">
             <GitBranch className="mb-3 h-10 w-10 text-muted-foreground/50" />
-            <p className="text-muted-foreground">No decisions logged yet. Record your first decision.</p>
+            <p className="font-medium text-muted-foreground">No decisions recorded yet</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Log your first architecture decision with context and rationale.
+            </p>
+            <Button size="sm" className="mt-4" onClick={openCreate}>
+              <Plus className="mr-2 h-4 w-4" />
+              Log Decision
+            </Button>
           </CardContent>
         </Card>
       ) : (
@@ -297,7 +308,7 @@ export default function DecisionsPage({ params }: { params: Promise<{ slug: stri
                 id="options"
                 value={form.options}
                 onChange={(e) => setForm({ ...form, options: e.target.value })}
-                placeholder="PostgreSQL&#10;MySQL&#10;MongoDB"
+                placeholder={"PostgreSQL\nMySQL\nMongoDB"}
                 rows={4}
               />
             </div>

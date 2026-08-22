@@ -9,7 +9,6 @@ import {
   FolderKanban,
   FileText,
   Lightbulb,
-  CheckCircle2,
   Loader2,
   Sparkles,
 } from 'lucide-react';
@@ -112,7 +111,7 @@ export default function SearchPage() {
             <Sparkles className="h-8 w-8 text-muted-foreground/50" />
           </div>
           <h2 className="text-lg font-medium text-foreground mb-1">
-            Start typing to search
+            Type to search
           </h2>
           <p className="text-sm text-muted-foreground max-w-sm">
             Find anything across your projects, tasks, notes, and architectural

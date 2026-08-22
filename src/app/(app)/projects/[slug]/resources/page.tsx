@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect, useCallback } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -24,7 +24,7 @@ import {
   FileText,
   Link as LinkIcon,
   FolderOpen,
-  StickyNote,
+  Loader2,
 } from 'lucide-react';
 
 interface Resource {
@@ -36,68 +36,19 @@ interface Resource {
   createdAt: string;
 }
 
+const PROJECT_ID = 'demo-project';
+
 const typeConfig: Record<
   string,
   { icon: typeof LinkIcon; color: string; label: string }
 > = {
   link: { icon: LinkIcon, color: 'bg-blue-100 text-blue-700', label: 'Link' },
-  file: {
-    icon: FolderOpen,
-    color: 'bg-orange-100 text-orange-700',
-    label: 'File',
-  },
-  doc: {
-    icon: FileText,
-    color: 'bg-green-100 text-green-700',
-    label: 'Doc',
-  },
+  file: { icon: FolderOpen, color: 'bg-orange-100 text-orange-700', label: 'File' },
+  doc: { icon: FileText, color: 'bg-green-100 text-green-700', label: 'Doc' },
 };
 
 const typeOptions = ['link', 'file', 'doc'] as const;
 type ResourceType = 'link' | 'file' | 'doc';
-
-const demoResources: Resource[] = [
-  {
-    id: '1',
-    title: 'TaskFlow API Spec (OpenAPI)',
-    url: 'https://docs.example.com/taskflow/api',
-    type: 'doc',
-    notes: 'Full OpenAPI 3.1 specification for the TaskFlow REST API',
-    createdAt: '2026-02-10',
-  },
-  {
-    id: '2',
-    title: 'Auth middleware reference',
-    url: 'https://github.com/example/auth-middleware',
-    type: 'link',
-    notes: 'Reference implementation for JWT-based auth middleware',
-    createdAt: '2026-02-08',
-  },
-  {
-    id: '3',
-    title: 'Database schema diagram',
-    url: '/files/schema-v2.png',
-    type: 'file',
-    notes: 'Visual diagram of the v2 database schema with relationships',
-    createdAt: '2026-02-05',
-  },
-  {
-    id: '4',
-    title: 'Rate limiting design doc',
-    url: 'https://docs.example.com/rate-limiting',
-    type: 'doc',
-    notes: 'Design decisions for token-bucket rate limiting implementation',
-    createdAt: '2026-01-28',
-  },
-  {
-    id: '5',
-    title: 'CI/CD pipeline config',
-    url: 'https://github.com/example/taskflow/blob/main/.github/workflows/deploy.yml',
-    type: 'link',
-    notes: 'GitHub Actions workflow for build, test, and deploy',
-    createdAt: '2026-01-20',
-  },
-];
 
 const emptyForm: {
   title: string;
@@ -116,11 +67,38 @@ export default function ResourcesPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const [resources, setResources] = useState<Resource[]>(demoResources);
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [projectSlug, setProjectSlug] = useState('');
+
+  useEffect(() => {
+    params.then(({ slug }) => setProjectSlug(slug));
+  }, [params]);
+
+  const fetchResources = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/projects/${PROJECT_ID}/resources`);
+      if (!res.ok) throw new Error('Failed to fetch resources');
+      const data = await res.json();
+      setResources(data.resources || data || []);
+      setError('');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to load resources');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchResources();
+  }, [fetchResources]);
 
   const openCreate = () => {
     setEditingId(null);
@@ -139,36 +117,43 @@ export default function ResourcesPage({
     setDialogOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingId) {
-      setResources((prev) =>
-        prev.map((r) =>
-          r.id === editingId
-            ? { ...r, title: form.title, url: form.url, type: form.type, notes: form.notes }
-            : r
-        )
-      );
-    } else {
-      const newResource: Resource = {
-        id: Date.now().toString(),
-        title: form.title,
-        url: form.url,
-        type: form.type,
-        notes: form.notes,
-        createdAt: new Date().toISOString().split('T')[0],
-      };
-      setResources((prev) => [newResource, ...prev]);
+    setSaving(true);
+    try {
+      const method = editingId ? 'PATCH' : 'POST';
+      const url = editingId
+        ? `/api/projects/${PROJECT_ID}/resources/${editingId}`
+        : `/api/projects/${PROJECT_ID}/resources`;
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error('Failed to save resource');
+      setDialogOpen(false);
+      fetchResources();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to save');
+    } finally {
+      setSaving(false);
     }
-    setDialogOpen(false);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
+    if (!confirm('Delete this resource?')) return;
     setDeletingId(id);
-    setTimeout(() => {
-      setResources((prev) => prev.filter((r) => r.id !== id));
+    try {
+      const res = await fetch(`/api/projects/${PROJECT_ID}/resources/${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to delete');
+      fetchResources();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to delete');
+    } finally {
       setDeletingId(null);
-    }, 200);
+    }
   };
 
   return (
@@ -186,15 +171,28 @@ export default function ResourcesPage({
         </Button>
       </div>
 
-      <ProjectNav projectSlug="demo-project" />
+      <ProjectNav projectSlug={projectSlug} />
 
-      {resources.length === 0 ? (
+      {error && (
+        <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
+      )}
+
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : resources.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16">
             <FileText className="mb-3 h-10 w-10 text-muted-foreground/50" />
-            <p className="text-muted-foreground">
-              No resources yet. Save your first link or document.
+            <p className="font-medium text-muted-foreground">No resources saved yet</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Save links, files, and documents for easy access.
             </p>
+            <Button size="sm" className="mt-4" onClick={openCreate}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Resource
+            </Button>
           </CardContent>
         </Card>
       ) : (
@@ -215,9 +213,7 @@ export default function ResourcesPage({
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium truncate">
-                        {resource.title}
-                      </span>
+                      <span className="font-medium truncate">{resource.title}</span>
                       <Badge variant="secondary" className="text-xs shrink-0">
                         {config.label}
                       </Badge>
@@ -328,8 +324,8 @@ export default function ResourcesPage({
               />
             </div>
             <DialogFooter>
-              <Button type="submit">
-                {editingId ? 'Update' : 'Add Resource'}
+              <Button type="submit" disabled={saving}>
+                {saving ? 'Saving...' : editingId ? 'Update' : 'Add Resource'}
               </Button>
             </DialogFooter>
           </form>

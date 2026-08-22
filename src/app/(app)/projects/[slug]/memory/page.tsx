@@ -1,49 +1,97 @@
 'use client';
 
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { ProjectNav } from '@/components/project/project-nav';
-import { Pencil, Save, BookOpen } from 'lucide-react';
-import { useState } from 'react';
+import { Pencil, Save, BookOpen, Loader2 } from 'lucide-react';
 
-// Demo data
-const memory = {
-  purpose:
-    'TaskFlow is a lightweight task management API built for small teams (2-5 people) who need a simple way to track tasks without the overhead of tools like Jira.',
-  problem:
-    'Small teams often struggle with task management. Sticky notes are too simple, Jira is too complex. TaskFlow bridges this gap with a clean API and minimal UI.',
-  decisions:
-    `1. **PostgreSQL over MongoDB** — Relational data fits task management perfectly. Tasks have clear relationships to milestones, projects, and users.
+interface Memory {
+  purpose: string;
+  problem: string;
+  decisions: string;
+  knownIssues: string;
+  futurePlans: string;
+}
 
-2. **REST over GraphQL** — For this scope, REST is simpler to implement and consume. No need for flexible queries when the data model is well-defined.
-
-3. **Redis for caching** — Session management and rate limiting both need fast in-memory storage. Redis handles both elegantly.
-
-4. **Monolith first** — Avoid premature microservice complexity. A well-structured monolith can be split later if needed.`,
-  knownIssues:
-    `- Rate limiter not implemented yet (blocking production use)
-- Auth middleware has edge case with expired tokens on Safari
-- No pagination on list endpoints (will break with large datasets)
-- Error messages not standardized across endpoints`,
-  futurePlans:
-    `- Real-time updates via WebSocket
-- File attachments on tasks
-- Mobile app (React Native)
-- Webhook integrations for Slack/Discord
-- Multi-workspace support
-- Time tracking with reports`,
+const emptyMemory: Memory = {
+  purpose: '',
+  problem: '',
+  decisions: '',
+  knownIssues: '',
+  futurePlans: '',
 };
 
-export default function MemoryPage() {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedMemory, setEditedMemory] = useState(memory);
+const PROJECT_ID = 'demo-project';
 
-  const handleSave = () => {
-    // TODO: Save via API
-    setIsEditing(false);
+export default function MemoryPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const [memory, setMemory] = useState<Memory>(emptyMemory);
+  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [projectSlug, setProjectSlug] = useState('');
+
+  useEffect(() => {
+    params.then(({ slug }) => setProjectSlug(slug));
+  }, [params]);
+
+  const fetchMemory = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/projects/${PROJECT_ID}/memory`);
+      if (res.ok) {
+        const data = await res.json();
+        setMemory({
+          purpose: data.purpose || '',
+          problem: data.problem || '',
+          decisions: data.decisions || '',
+          knownIssues: data.knownIssues || '',
+          futurePlans: data.futurePlans || '',
+        });
+      }
+      setError('');
+    } catch {
+      // show empty fields on error
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchMemory();
+  }, [fetchMemory]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/projects/${PROJECT_ID}/memory`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(memory),
+      });
+      if (!res.ok) throw new Error('Failed to save');
+      setIsEditing(false);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to save');
+    } finally {
+      setSaving(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -60,11 +108,12 @@ export default function MemoryPage() {
         <Button
           variant={isEditing ? 'default' : 'outline'}
           onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
+          disabled={saving}
         >
           {isEditing ? (
             <>
               <Save className="mr-2 h-4 w-4" />
-              Save
+              {saving ? 'Saving...' : 'Save'}
             </>
           ) : (
             <>
@@ -75,10 +124,13 @@ export default function MemoryPage() {
         </Button>
       </div>
 
-      <ProjectNav projectSlug="taskflow" />
+      <ProjectNav projectSlug={projectSlug} />
+
+      {error && (
+        <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
+      )}
 
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Purpose */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm">Purpose</CardTitle>
@@ -88,20 +140,23 @@ export default function MemoryPage() {
               <div className="space-y-2">
                 <Label>Why does this project exist?</Label>
                 <Textarea
-                  value={editedMemory.purpose}
+                  value={memory.purpose}
                   onChange={(e) =>
-                    setEditedMemory({ ...editedMemory, purpose: e.target.value })
+                    setMemory({ ...memory, purpose: e.target.value })
                   }
                   rows={4}
                 />
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">{memory.purpose}</p>
+              <p className="text-sm text-muted-foreground">
+                {memory.purpose || (
+                  <span className="italic">No purpose defined yet. Click Edit to add one.</span>
+                )}
+              </p>
             )}
           </CardContent>
         </Card>
 
-        {/* Problem */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm">Problem It Solves</CardTitle>
@@ -111,20 +166,23 @@ export default function MemoryPage() {
               <div className="space-y-2">
                 <Label>What problem does this solve?</Label>
                 <Textarea
-                  value={editedMemory.problem}
+                  value={memory.problem}
                   onChange={(e) =>
-                    setEditedMemory({ ...editedMemory, problem: e.target.value })
+                    setMemory({ ...memory, problem: e.target.value })
                   }
                   rows={4}
                 />
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">{memory.problem}</p>
+              <p className="text-sm text-muted-foreground">
+                {memory.problem || (
+                  <span className="italic">No problem statement defined yet.</span>
+                )}
+              </p>
             )}
           </CardContent>
         </Card>
 
-        {/* Decisions */}
         <Card className="md:col-span-2">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm">Key Decisions</CardTitle>
@@ -134,22 +192,23 @@ export default function MemoryPage() {
               <div className="space-y-2">
                 <Label>Important technical and design decisions</Label>
                 <Textarea
-                  value={editedMemory.decisions}
+                  value={memory.decisions}
                   onChange={(e) =>
-                    setEditedMemory({ ...editedMemory, decisions: e.target.value })
+                    setMemory({ ...memory, decisions: e.target.value })
                   }
                   rows={8}
                 />
               </div>
             ) : (
               <div className="prose prose-sm max-w-none text-muted-foreground whitespace-pre-wrap">
-                {memory.decisions}
+                {memory.decisions || (
+                  <span className="italic">No decisions recorded yet.</span>
+                )}
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* Known Issues */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm">Known Issues</CardTitle>
@@ -159,25 +218,23 @@ export default function MemoryPage() {
               <div className="space-y-2">
                 <Label>Current problems and limitations</Label>
                 <Textarea
-                  value={editedMemory.knownIssues}
+                  value={memory.knownIssues}
                   onChange={(e) =>
-                    setEditedMemory({
-                      ...editedMemory,
-                      knownIssues: e.target.value,
-                    })
+                    setMemory({ ...memory, knownIssues: e.target.value })
                   }
                   rows={6}
                 />
               </div>
             ) : (
               <div className="prose prose-sm max-w-none text-muted-foreground whitespace-pre-wrap">
-                {memory.knownIssues}
+                {memory.knownIssues || (
+                  <span className="italic">No known issues recorded.</span>
+                )}
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* Future Plans */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm">Future Plans</CardTitle>
@@ -185,21 +242,20 @@ export default function MemoryPage() {
           <CardContent>
             {isEditing ? (
               <div className="space-y-2">
-                <Label>What's planned for the future?</Label>
+                <Label>What&apos;s planned for the future?</Label>
                 <Textarea
-                  value={editedMemory.futurePlans}
+                  value={memory.futurePlans}
                   onChange={(e) =>
-                    setEditedMemory({
-                      ...editedMemory,
-                      futurePlans: e.target.value,
-                    })
+                    setMemory({ ...memory, futurePlans: e.target.value })
                   }
                   rows={6}
                 />
               </div>
             ) : (
               <div className="prose prose-sm max-w-none text-muted-foreground whitespace-pre-wrap">
-                {memory.futurePlans}
+                {memory.futurePlans || (
+                  <span className="italic">No future plans recorded.</span>
+                )}
               </div>
             )}
           </CardContent>

@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -28,6 +28,7 @@ import {
   FileText,
   RefreshCw,
   Circle,
+  Loader2,
 } from 'lucide-react';
 
 interface MaintenanceItem {
@@ -95,7 +96,11 @@ const emptyForm: {
   status: 'open',
 };
 
-export default function MaintenancePage({ params }: { params: Promise<{ slug: string }> }) {
+export default function MaintenancePage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const [items, setItems] = useState<MaintenanceItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -106,6 +111,11 @@ export default function MaintenancePage({ params }: { params: Promise<{ slug: st
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [projectSlug, setProjectSlug] = useState('');
+
+  useEffect(() => {
+    params.then(({ slug }) => setProjectSlug(slug));
+  }, [params]);
 
   const fetchItems = useCallback(async () => {
     try {
@@ -216,7 +226,7 @@ export default function MaintenancePage({ params }: { params: Promise<{ slug: st
         </Button>
       </div>
 
-      <ProjectNav projectSlug="demo-project" />
+      <ProjectNav projectSlug={projectSlug} />
 
       {error && (
         <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
@@ -267,16 +277,23 @@ export default function MaintenancePage({ params }: { params: Promise<{ slug: st
       </div>
 
       {loading ? (
-        <div className="py-12 text-center text-muted-foreground">Loading maintenance items...</div>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
       ) : filtered.length === 0 ? (
         <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
+          <CardContent className="flex flex-col items-center justify-center py-16">
             <CheckCircle2 className="mb-3 h-10 w-10 text-green-500/50" />
-            <p className="text-muted-foreground">
+            <p className="font-medium text-muted-foreground">
               {typeFilter === 'all' && statusFilter === 'all'
-                ? 'No maintenance items. Your project is clean!'
+                ? 'No maintenance items'
                 : 'No items match the selected filters.'}
             </p>
+            {typeFilter === 'all' && statusFilter === 'all' && (
+              <p className="mt-1 text-sm text-muted-foreground">
+                Your project is clean. Add items to track bugs and improvements.
+              </p>
+            )}
           </CardContent>
         </Card>
       ) : (
