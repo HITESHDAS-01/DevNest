@@ -10,9 +10,9 @@ import {
   Search,
   ArrowRight,
   CheckCircle2,
-  GitBranch,
-  Shield,
   Sparkles,
+  Menu,
+  X,
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -76,7 +76,7 @@ const features = [
     icon: Zap,
     title: 'Smart Recommendations',
     description:
-      'AI-powered "What should I work on next?" based on priority, blockers, deadlines, and project health.',
+      '"What should I work on next?" powered by priority, blockers, deadlines, and project health.',
   },
   {
     icon: BarChart3,
@@ -219,289 +219,444 @@ export default function LandingPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-    <div className="flex flex-col min-h-screen">
-      {/* Navbar */}
-      <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-lg">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">🪹</span>
-            <span className="text-xl font-bold">DevNest</span>
+
+      <style jsx global>{`
+        @keyframes fade-in-up {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slide-in-left {
+          from { opacity: 0; transform: translateX(-30px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+        }
+        @keyframes pulse-glow {
+          0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.15); }
+          50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.3); }
+        }
+        @keyframes gradient-shift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .animate-fade-in-up { animation: fade-in-up 0.6s ease-out forwards; opacity: 0; }
+        .animate-fade-in { animation: fade-in 0.6s ease-out forwards; opacity: 0; }
+        .animate-slide-in-left { animation: slide-in-left 0.6s ease-out forwards; opacity: 0; }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+        .animate-gradient { 
+          background-size: 200% 200%;
+          animation: gradient-shift 8s ease infinite; 
+        }
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+        .delay-500 { animation-delay: 0.5s; }
+        .delay-600 { animation-delay: 0.6s; }
+        .delay-700 { animation-delay: 0.7s; }
+        .delay-800 { animation-delay: 0.8s; }
+        .glass {
+          background: rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .dark .glass {
+          background: rgba(0, 0, 0, 0.2);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-card {
+          background: rgba(255, 255, 255, 0.6);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          transition: all 0.3s ease;
+        }
+        .dark .glass-card {
+          background: rgba(15, 15, 20, 0.6);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+          border-color: rgba(99, 102, 241, 0.3);
+        }
+        .dark .glass-card:hover {
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+        .glass-hero {
+          background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.08) 50%, rgba(236, 72, 153, 0.05) 100%);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+        }
+        .glass-pricing {
+          background: linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.3) 100%);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .dark .glass-pricing {
+          background: linear-gradient(135deg, rgba(20, 20, 30, 0.7) 0%, rgba(20, 20, 30, 0.3) 100%);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-pricing-highlighted {
+          background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 2px solid rgba(99, 102, 241, 0.4);
+          box-shadow: 0 0 30px rgba(99, 102, 241, 0.15);
+        }
+        .dark .glass-pricing-highlighted {
+          background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.15) 100%);
+          border: 2px solid rgba(99, 102, 241, 0.5);
+          box-shadow: 0 0 40px rgba(99, 102, 241, 0.2);
+        }
+        .glass-step {
+          background: rgba(255, 255, 255, 0.4);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .dark .glass-step {
+          background: rgba(15, 15, 20, 0.4);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .glass-nav {
+          background: rgba(255, 255, 255, 0.7);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .dark .glass-nav {
+          background: rgba(10, 10, 15, 0.7);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .glass-cta {
+          background: linear-gradient(135deg, rgba(99, 102, 241, 0.9) 0%, rgba(139, 92, 246, 0.9) 100%);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+        }
+        .mesh-gradient {
+          background-image: 
+            radial-gradient(at 20% 20%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+            radial-gradient(at 80% 10%, rgba(139, 92, 246, 0.12) 0px, transparent 50%),
+            radial-gradient(at 50% 80%, rgba(236, 72, 153, 0.08) 0px, transparent 50%),
+            radial-gradient(at 90% 70%, rgba(20, 184, 166, 0.08) 0px, transparent 50%);
+        }
+        .glow-dot {
+          width: 300px;
+          height: 300px;
+          border-radius: 50%;
+          filter: blur(80px);
+          position: absolute;
+          pointer-events: none;
+        }
+      `}</style>
+
+      <div className="flex flex-col min-h-screen">
+        {/* Navbar */}
+        <header className="sticky top-0 z-50 glass-nav">
+          <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">🪹</span>
+              <span className="text-xl font-bold">DevNest</span>
+            </div>
+            <nav className="hidden md:flex items-center gap-6">
+              <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Features
+              </a>
+              <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                How It Works
+              </a>
+              <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Pricing
+              </a>
+            </nav>
+            <div className="flex items-center gap-3">
+              <Link href="/auth/login">
+                <Button variant="ghost" size="sm">
+                  Sign In
+                </Button>
+              </Link>
+              <Link href="/auth/login">
+                <Button size="sm">
+                  Get Started
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
           </div>
-          <nav className="hidden md:flex items-center gap-6">
-            <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Features
-            </a>
-            <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              How It Works
-            </a>
-            <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Pricing
-            </a>
-          </nav>
-          <div className="flex items-center gap-3">
-            <Link href="/auth/login">
-              <Button variant="ghost" size="sm">
-                Sign In
-              </Button>
-            </Link>
-            <Link href="/auth/login">
-              <Button size="sm">
-                Get Started
+        </header>
+
+        {/* Hero */}
+        <section className="relative overflow-hidden py-20 md:py-32 glass-hero">
+          {/* Glow dots */}
+          <div className="glow-dot bg-primary/20 top-0 left-1/4 animate-pulse-glow" />
+          <div className="glow-dot bg-purple-500/15 bottom-0 right-1/4 animate-pulse-glow delay-1000" />
+          <div className="glow-dot bg-pink-500/10 top-1/2 right-0 animate-pulse-glow delay-500" />
+
+          {/* Mesh gradient overlay */}
+          <div className="absolute inset-0 mesh-gradient" />
+
+          <div className="container relative mx-auto px-4 md:px-6 text-center">
+            <div className="mx-auto max-w-3xl">
+              <div className="animate-fade-in-up inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-sm mb-6 animate-pulse-glow">
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
+                <span>Built for developers who build</span>
+              </div>
+              <h1 className="animate-fade-in-up delay-100 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+                Your Developer
+                <br />
+                <span className="text-primary">Project OS</span>
+              </h1>
+              <p className="animate-fade-in-up delay-200 mt-6 text-lg text-muted-foreground md:text-xl max-w-2xl mx-auto">
+                The central command center for all your software projects. Track
+                lifecycle, milestones, tasks, blockers, and maintenance — so you
+                always know what to work on next.
+              </p>
+              <div className="animate-fade-in-up delay-300 mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Link href="/auth/login">
+                  <Button size="lg" className="text-base px-8 glass animate-pulse-glow">
+                    Start for Free
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+                <a href="#features">
+                  <Button variant="outline" size="lg" className="text-base px-8 glass">
+                    See Features
+                  </Button>
+                </a>
+              </div>
+              <p className="animate-fade-in-up delay-400 mt-4 text-sm text-muted-foreground">
+                No credit card required · Free forever for personal use
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Features */}
+        <section id="features" className="py-20 md:py-28 relative">
+          <div className="absolute inset-0 mesh-gradient opacity-50" />
+          <div className="container relative mx-auto px-4 md:px-6">
+            <div className="text-center mb-12">
+              <h2 className="animate-fade-in-up text-3xl font-bold md:text-4xl">
+                Everything You Need
+              </h2>
+              <p className="animate-fade-in-up delay-100 mt-3 text-muted-foreground text-lg max-w-2xl mx-auto">
+                Stop juggling GitHub issues, Notion docs, and sticky notes.
+                DevNest is the only tool you need.
+              </p>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {features.map((feature, i) => (
+                <div
+                  key={feature.title}
+                  className={`animate-fade-in-up delay-${(i + 1) * 100} glass-card group rounded-xl p-6 cursor-default`}
+                >
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                    <feature.icon className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-semibold">{feature.title}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {feature.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* How It Works */}
+        <section id="how-it-works" className="py-20 md:py-28 relative glass-hero">
+          <div className="absolute inset-0 mesh-gradient" />
+          <div className="container relative mx-auto px-4 md:px-6">
+            <div className="text-center mb-12">
+              <h2 className="animate-fade-in-up text-3xl font-bold md:text-4xl">
+                How It Works
+              </h2>
+              <p className="animate-fade-in-up delay-100 mt-3 text-muted-foreground text-lg">
+                Three steps to total project clarity
+              </p>
+            </div>
+            <div className="grid gap-8 md:grid-cols-3">
+              {steps.map((step, i) => (
+                <div key={step.number} className={`animate-fade-in-up delay-${(i + 1) * 200} text-center`}>
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground animate-float">
+                    {step.number}
+                  </div>
+                  <h3 className="text-xl font-semibold">{step.title}</h3>
+                  <p className="mt-2 text-muted-foreground">
+                    {step.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Testimonials */}
+        <section className="py-20 md:py-28 relative">
+          <div className="absolute inset-0 mesh-gradient opacity-30" />
+          <div className="container relative mx-auto px-4 md:px-6">
+            <div className="text-center mb-12">
+              <h2 className="animate-fade-in-up text-3xl font-bold md:text-4xl">
+                Loved by Developers
+              </h2>
+            </div>
+            <div className="grid gap-6 md:grid-cols-3">
+              {testimonials.map((t, i) => (
+                <div
+                  key={i}
+                  className={`animate-fade-in-up delay-${(i + 1) * 100} glass-card rounded-xl p-6`}
+                >
+                  <p className="text-muted-foreground italic">
+                    &ldquo;{t.quote}&rdquo;
+                  </p>
+                  <div className="mt-4">
+                    <p className="font-medium">{t.author}</p>
+                    <p className="text-sm text-muted-foreground">{t.role}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Pricing */}
+        <section id="pricing" className="py-20 md:py-28 relative glass-hero">
+          <div className="absolute inset-0 mesh-gradient" />
+          <div className="container relative mx-auto px-4 md:px-6">
+            <div className="text-center mb-12">
+              <h2 className="animate-fade-in-up text-3xl font-bold md:text-4xl">
+                Simple Pricing
+              </h2>
+              <p className="animate-fade-in-up delay-100 mt-3 text-muted-foreground text-lg">
+                Start free, upgrade when you need more
+              </p>
+            </div>
+            <div className="grid gap-6 md:grid-cols-3 max-w-5xl mx-auto">
+              {pricingPlans.map((plan, i) => (
+                <div
+                  key={plan.name}
+                  className={`animate-fade-in-up delay-${(i + 1) * 100} rounded-xl p-6 ${
+                    plan.highlighted
+                      ? 'glass-pricing-highlighted animate-pulse-glow'
+                      : 'glass-pricing'
+                  }`}
+                >
+                  {plan.highlighted && (
+                    <div className="mb-3 inline-flex items-center rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-primary-foreground">
+                      Most Popular
+                    </div>
+                  )}
+                  <h3 className="text-xl font-bold">{plan.name}</h3>
+                  <div className="mt-2 flex items-baseline gap-1">
+                    <span className="text-3xl font-bold">{plan.price}</span>
+                    <span className="text-muted-foreground">{plan.period}</span>
+                  </div>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {plan.description}
+                  </p>
+                  <ul className="mt-6 space-y-3">
+                    {plan.features.map((f) => (
+                      <li key={f} className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link href="/auth/login" className="mt-6 block">
+                    <Button
+                      className="w-full"
+                      variant={plan.highlighted ? 'default' : 'outline'}
+                    >
+                      {plan.cta}
+                    </Button>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="py-20 md:py-28 glass-cta text-primary-foreground relative overflow-hidden">
+          <div className="absolute inset-0 mesh-gradient opacity-30" />
+          <div className="container relative mx-auto px-4 md:px-6 text-center">
+            <h2 className="animate-fade-in-up text-3xl font-bold md:text-4xl">
+              Ready to Take Control?
+            </h2>
+            <p className="animate-fade-in-up delay-100 mt-3 text-primary-foreground/80 text-lg max-w-xl mx-auto">
+              Join developers who stopped losing track of their projects. Start
+              managing everything in one place.
+            </p>
+            <Link href="/auth/login" className="mt-8 inline-block">
+              <Button
+                size="lg"
+                variant="secondary"
+                className="text-base px-8 glass animate-pulse-glow"
+              >
+                Get Started Free
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
           </div>
-        </div>
-      </header>
+        </section>
 
-      {/* Hero */}
-      <section className="relative overflow-hidden py-20 md:py-32">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5" />
-        <div className="container relative mx-auto px-4 md:px-6 text-center">
-          <div className="mx-auto max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full border bg-muted px-3 py-1 text-sm mb-6">
-              <Sparkles className="h-3.5 w-3.5 text-primary" />
-              <span>Built for developers who build</span>
-            </div>
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-              Your Developer
-              <br />
-              <span className="text-primary">Project OS</span>
-            </h1>
-            <p className="mt-6 text-lg text-muted-foreground md:text-xl max-w-2xl mx-auto">
-              The central command center for all your software projects. Track
-              lifecycle, milestones, tasks, blockers, and maintenance — so you
-              always know what to work on next.
-            </p>
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/auth/login">
-                <Button size="lg" className="text-base px-8">
-                  Start for Free
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-              <a href="#features">
-                <Button variant="outline" size="lg" className="text-base px-8">
-                  See Features
-                </Button>
-              </a>
-            </div>
-            <p className="mt-4 text-sm text-muted-foreground">
-              No credit card required · Free forever for personal use
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section id="features" className="py-20 md:py-28 bg-muted/30">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold md:text-4xl">
-              Everything You Need
-            </h2>
-            <p className="mt-3 text-muted-foreground text-lg max-w-2xl mx-auto">
-              Stop juggling GitHub issues, Notion docs, and sticky notes.
-              DevNest is the only tool you need.
-            </p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature) => (
-              <div
-                key={feature.title}
-                className="group rounded-xl border bg-card p-6 transition-all hover:shadow-md"
-              >
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                  <feature.icon className="h-6 w-6 text-primary" />
+        {/* Footer */}
+        <footer className="border-t py-12 glass-hero relative">
+          <div className="absolute inset-0 mesh-gradient opacity-30" />
+          <div className="container relative mx-auto px-4 md:px-6">
+            <div className="grid gap-8 md:grid-cols-4">
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-xl">🪹</span>
+                  <span className="font-bold">DevNest</span>
                 </div>
-                <h3 className="text-lg font-semibold">{feature.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {feature.description}
+                <p className="text-sm text-muted-foreground">
+                  The developer project operating system.
                 </p>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section id="how-it-works" className="py-20 md:py-28">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold md:text-4xl">
-              How It Works
-            </h2>
-            <p className="mt-3 text-muted-foreground text-lg">
-              Three steps to total project clarity
-            </p>
-          </div>
-          <div className="grid gap-8 md:grid-cols-3">
-            {steps.map((step) => (
-              <div key={step.number} className="text-center">
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">
-                  {step.number}
-                </div>
-                <h3 className="text-xl font-semibold">{step.title}</h3>
-                <p className="mt-2 text-muted-foreground">
-                  {step.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-20 md:py-28 bg-muted/30">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold md:text-4xl">
-              Loved by Developers
-            </h2>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {testimonials.map((t, i) => (
-              <div
-                key={i}
-                className="rounded-xl border bg-card p-6"
-              >
-                <p className="text-muted-foreground italic">
-                  &ldquo;{t.quote}&rdquo;
-                </p>
-                <div className="mt-4">
-                  <p className="font-medium">{t.author}</p>
-                  <p className="text-sm text-muted-foreground">{t.role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing */}
-      <section id="pricing" className="py-20 md:py-28">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold md:text-4xl">
-              Simple Pricing
-            </h2>
-            <p className="mt-3 text-muted-foreground text-lg">
-              Start free, upgrade when you need more
-            </p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3 max-w-5xl mx-auto">
-            {pricingPlans.map((plan) => (
-              <div
-                key={plan.name}
-                className={`rounded-xl border p-6 ${
-                  plan.highlighted
-                    ? 'border-primary bg-card shadow-md ring-2 ring-primary/20'
-                    : 'bg-card'
-                }`}
-              >
-                {plan.highlighted && (
-                  <div className="mb-3 inline-flex items-center rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-primary-foreground">
-                    Most Popular
-                  </div>
-                )}
-                <h3 className="text-xl font-bold">{plan.name}</h3>
-                <div className="mt-2 flex items-baseline gap-1">
-                  <span className="text-3xl font-bold">{plan.price}</span>
-                  <span className="text-muted-foreground">{plan.period}</span>
-                </div>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {plan.description}
-                </p>
-                <ul className="mt-6 space-y-3">
-                  {plan.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-sm">
-                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
-                      {f}
-                    </li>
-                  ))}
+              <div>
+                <h4 className="font-medium mb-3">Product</h4>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li><a href="#features" className="hover:text-foreground transition-colors">Features</a></li>
+                  <li><a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a></li>
+                  <li><a href="#" className="hover:text-foreground transition-colors">Changelog</a></li>
+                  <li><a href="#" className="hover:text-foreground transition-colors">Roadmap</a></li>
                 </ul>
-                <Link href="/auth/login" className="mt-6 block">
-                  <Button
-                    className="w-full"
-                    variant={plan.highlighted ? 'default' : 'outline'}
-                  >
-                    {plan.cta}
-                  </Button>
-                </Link>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-20 md:py-28 bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 md:px-6 text-center">
-          <h2 className="text-3xl font-bold md:text-4xl">
-            Ready to Take Control?
-          </h2>
-          <p className="mt-3 text-primary-foreground/80 text-lg max-w-xl mx-auto">
-            Join developers who stopped losing track of their projects. Start
-            managing everything in one place.
-          </p>
-          <Link href="/auth/login" className="mt-8 inline-block">
-            <Button
-              size="lg"
-              variant="secondary"
-              className="text-base px-8"
-            >
-              Get Started Free
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t py-12">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="grid gap-8 md:grid-cols-4">
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-xl">🪹</span>
-                <span className="font-bold">DevNest</span>
+              <div>
+                <h4 className="font-medium mb-3">Resources</h4>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li><a href="#" className="hover:text-foreground transition-colors">Documentation</a></li>
+                  <li><a href="#" className="hover:text-foreground transition-colors">API Reference</a></li>
+                  <li><a href="#" className="hover:text-foreground transition-colors">Blog</a></li>
+                  <li><a href="#" className="hover:text-foreground transition-colors">Support</a></li>
+                </ul>
               </div>
-              <p className="text-sm text-muted-foreground">
-                The developer project operating system.
-              </p>
+              <div>
+                <h4 className="font-medium mb-3">Legal</h4>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li><a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a></li>
+                  <li><a href="#" className="hover:text-foreground transition-colors">Terms of Service</a></li>
+                </ul>
+              </div>
             </div>
-            <div>
-              <h4 className="font-medium mb-3">Product</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#features" className="hover:text-foreground transition-colors">Features</a></li>
-                <li><a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Changelog</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Roadmap</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-medium mb-3">Resources</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground transition-colors">Documentation</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">API Reference</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Blog</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Support</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-medium mb-3">Legal</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Terms of Service</a></li>
-              </ul>
+            <div className="mt-8 border-t pt-6 text-center text-sm text-muted-foreground">
+              © {new Date().getFullYear()} DevNest. All rights reserved.
             </div>
           </div>
-          <div className="mt-8 border-t pt-6 text-center text-sm text-muted-foreground">
-            © {new Date().getFullYear()} DevNest. All rights reserved.
-          </div>
-        </div>
-      </footer>
-    </div>
+        </footer>
+      </div>
     </>
   );
 }
