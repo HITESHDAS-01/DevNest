@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { ProjectNav } from '@/components/project/project-nav';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -16,6 +17,9 @@ import {
   Zap,
   Loader2,
   Plus,
+  GitBranch,
+  RefreshCw,
+  ExternalLink,
 } from 'lucide-react';
 
 interface ProjectData {
@@ -28,6 +32,7 @@ interface ProjectData {
   health: string;
   priority: number;
   progress: number;
+  repoUrl?: string | null;
 }
 
 interface Blocker {
@@ -100,6 +105,11 @@ export default function ProjectOverviewPage({
   const [recentActivity, setRecentActivity] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [githubLinked, setGithubLinked] = useState(false);
+  const [githubSyncing, setGithubSyncing] = useState(false);
+  const [githubLinking, setGithubLinking] = useState(false);
+  const [githubRepoUrl, setGithubRepoUrl] = useState('');
+  const [syncResult, setSyncResult] = useState<string | null>(null);
 
   const fetchData = useCallback(async (slug: string) => {
     try {
@@ -143,6 +153,41 @@ export default function ProjectOverviewPage({
   useEffect(() => {
     params.then(({ slug }) => fetchData(slug));
   }, [params, fetchData]);
+
+  const handleLinkGithub = async () => {
+    if (!githubRepoUrl.trim()) return;
+    setGithubLinking(true);
+    try {
+      const res = await fetch(`/api/projects/${project?.id}/github/link`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ repoUrl: githubRepoUrl }),
+      });
+      if (res.ok) {
+        setGithubLinked(true);
+        setGithubRepoUrl('');
+      }
+    } finally {
+      setGithubLinking(false);
+    }
+  };
+
+  const handleSyncGithub = async () => {
+    setGithubSyncing(true);
+    setSyncResult(null);
+    try {
+      const res = await fetch(`/api/projects/${project?.id}/github/sync`, {
+        method: 'POST',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSyncResult(`Synced ${data.synced.tasksCreated} tasks, ${data.synced.blockersCreated} blockers`);
+        fetchData(project!.slug);
+      }
+    } finally {
+      setGithubSyncing(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -220,6 +265,71 @@ export default function ProjectOverviewPage({
         <span className="text-sm font-medium text-muted-foreground">
           {project.progress}%
         </span>
+      </div>
+
+      {/* GitHub Integration */}
+      <div className="glass-card rounded-xl border border-white/20 dark:border-white/10 p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-500/10">
+            <GitBranch className="h-3.5 w-3.5 text-gray-500" />
+          </div>
+          <p className="text-sm font-semibold">GitHub</p>
+        </div>
+        {project.repoUrl ? (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-sm">
+              <a
+                href={project.repoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-indigo-500 hover:text-indigo-600 transition-colors"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                {project.repoUrl.replace('https://github.com/', '')}
+              </a>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="glass-card"
+                onClick={handleSyncGithub}
+                disabled={githubSyncing}
+              >
+                {githubSyncing ? (
+                  <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
+                ) : (
+                  <RefreshCw className="mr-1.5 h-3 w-3" />
+                )}
+                Sync Issues & PRs
+              </Button>
+            </div>
+            {syncResult && (
+              <p className="text-xs text-emerald-500 font-medium">{syncResult}</p>
+            )}
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <Input
+              placeholder="https://github.com/owner/repo"
+              value={githubRepoUrl}
+              onChange={(e) => setGithubRepoUrl(e.target.value)}
+              className="flex-1 h-9 text-sm glass-card border-white/20 dark:border-white/10"
+            />
+            <Button
+              size="sm"
+              onClick={handleLinkGithub}
+              disabled={githubLinking || !githubRepoUrl.trim()}
+              className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-sm"
+            >
+              {githubLinking ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                'Link Repo'
+              )}
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Phase Pipeline */}
