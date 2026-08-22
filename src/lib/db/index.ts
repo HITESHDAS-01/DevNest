@@ -18,8 +18,8 @@ function getDb(): PostgresJsDatabase<typeof schema> {
   // when DATABASE_URL is not set (e.g. during type-checking).
   const { default: postgres } = require('postgres');
   const { drizzle } = require('drizzle-orm/postgres-js');
-  _db = drizzle(postgres(connectionString), { schema });
-  return _db;
+  _db = drizzle(postgres(connectionString), { schema }) as any;
+  return _db!;
 }
 
 // Lazy proxy so `db` can be imported without immediate connection
