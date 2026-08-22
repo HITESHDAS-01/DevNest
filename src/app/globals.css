@@ -194,8 +194,8 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 .dark .glass {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .glass-card {
@@ -206,8 +206,8 @@
   transition: all 0.3s ease;
 }
 .dark .glass-card {
-  background: rgba(15, 15, 20, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(30, 30, 40, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 .glass-card:hover {
   transform: translateY(-4px) translateZ(0);
@@ -216,7 +216,8 @@
   will-change: transform;
 }
 .dark .glass-card:hover {
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  background: rgba(40, 40, 55, 0.7);
 }
 
 .glass-hero {
@@ -225,7 +226,7 @@
   -webkit-backdrop-filter: blur(20px);
 }
 .dark .glass-hero {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.1) 50%, rgba(236, 72, 153, 0.06) 100%);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.15) 50%, rgba(236, 72, 153, 0.08) 100%);
 }
 
 .glass-pricing {
@@ -235,8 +236,8 @@
   border: 1px solid rgba(255, 255, 255, 0.4);
 }
 .dark .glass-pricing {
-  background: linear-gradient(135deg, rgba(20, 20, 30, 0.7) 0%, rgba(20, 20, 30, 0.3) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(135deg, rgba(30, 30, 45, 0.7) 0%, rgba(20, 20, 35, 0.5) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .glass-pricing-highlighted {
@@ -247,9 +248,9 @@
   box-shadow: 0 0 30px rgba(99, 102, 241, 0.15);
 }
 .dark .glass-pricing-highlighted {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.15) 100%);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(139, 92, 246, 0.2) 100%);
   border: 2px solid rgba(99, 102, 241, 0.5);
-  box-shadow: 0 0 40px rgba(99, 102, 241, 0.2);
+  box-shadow: 0 0 50px rgba(99, 102, 241, 0.25);
 }
 
 .glass-step {
@@ -259,8 +260,8 @@
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 .dark .glass-step {
-  background: rgba(15, 15, 20, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(30, 30, 45, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .glass-nav {
@@ -270,8 +271,8 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 .dark .glass-nav {
-  background: rgba(10, 10, 15, 0.7);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(20, 20, 30, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .glass-cta {
@@ -288,11 +289,18 @@
     radial-gradient(at 50% 80%, rgba(236, 72, 153, 0.08) 0px, transparent 50%),
     radial-gradient(at 90% 70%, rgba(20, 184, 166, 0.08) 0px, transparent 50%);
 }
+.dark .mesh-gradient {
+  background-image:
+    radial-gradient(at 20% 20%, rgba(99, 102, 241, 0.3) 0px, transparent 50%),
+    radial-gradient(at 80% 10%, rgba(139, 92, 246, 0.25) 0px, transparent 50%),
+    radial-gradient(at 50% 80%, rgba(236, 72, 153, 0.15) 0px, transparent 50%),
+    radial-gradient(at 90% 70%, rgba(20, 184, 166, 0.15) 0px, transparent 50%);
+}
 
 /* Glow dots */
 .glow-dot {
-  width: 300px;
-  height: 300px;
+  width: 350px;
+  height: 350px;
   border-radius: 50%;
   filter: blur(80px);
   position: absolute;

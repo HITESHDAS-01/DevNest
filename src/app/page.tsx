@@ -258,17 +258,17 @@ export default function LandingPage() {
         {/* Hero */}
         <section className="relative overflow-hidden py-20 md:py-32 glass-hero">
           {/* Glow dots */}
-          <div className="glow-dot bg-primary/20 top-0 left-1/4 animate-pulse-glow" />
-          <div className="glow-dot bg-purple-500/15 bottom-0 right-1/4 animate-pulse-glow delay-1000" />
-          <div className="glow-dot bg-pink-500/10 top-1/2 right-0 animate-pulse-glow delay-500" />
+          <div className="glow-dot bg-indigo-500/30 dark:bg-indigo-500/40 top-0 left-1/4 animate-pulse-glow" />
+          <div className="glow-dot bg-purple-500/25 dark:bg-purple-500/35 bottom-0 right-1/4 animate-pulse-glow delay-1000" />
+          <div className="glow-dot bg-pink-500/15 dark:bg-pink-500/25 top-1/2 right-0 animate-pulse-glow delay-500" />
 
           {/* Mesh gradient overlay */}
           <div className="absolute inset-0 mesh-gradient" />
 
           <div className="container relative mx-auto px-4 md:px-6 text-center">
             <div className="mx-auto max-w-3xl">
-              <div className="animate-fade-in-up inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-sm mb-6 animate-pulse-glow">
-                <Sparkles className="h-3.5 w-3.5 text-primary" />
+              <div className="animate-fade-in-up inline-flex items-center gap-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 px-4 py-1.5 text-sm mb-6">
+                <Sparkles className="h-3.5 w-3.5 text-indigo-500" />
                 <span>Built for developers who build</span>
               </div>
               <h1 className="animate-fade-in-up delay-100 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
@@ -283,7 +283,7 @@ export default function LandingPage() {
               </p>
               <div className="animate-fade-in-up delay-300 mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link href="/auth/login">
-                  <Button size="lg" className="text-base px-8 glass animate-pulse-glow">
+                  <Button size="lg" className="text-base px-8 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30 transition-all">
                     Start for Free
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -434,7 +434,7 @@ export default function LandingPage() {
                   </ul>
                   <Link href="/auth/login" className="mt-6 block">
                     <Button
-                      className="w-full"
+                      className={`w-full ${plan.highlighted ? 'bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-md shadow-indigo-500/20' : ''}`}
                       variant={plan.highlighted ? 'default' : 'outline'}
                     >
                       {plan.cta}
@@ -461,7 +461,7 @@ export default function LandingPage() {
               <Button
                 size="lg"
                 variant="secondary"
-                className="text-base px-8 glass animate-pulse-glow"
+                className="text-base px-8 bg-white text-indigo-600 hover:bg-white/90 shadow-lg hover:shadow-xl transition-all"
               >
                 Get Started Free
                 <ArrowRight className="ml-2 h-4 w-4" />
