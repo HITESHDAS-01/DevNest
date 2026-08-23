@@ -66,7 +66,7 @@ export default function NewProjectPage() {
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/projects">
-          <Button variant="ghost" size="icon" className="glass-card rounded-xl">
+          <Button variant="ghost" size="icon" className="rounded-xl">
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
@@ -78,7 +78,7 @@ export default function NewProjectPage() {
         </div>
       </div>
 
-      <div className="glass-card rounded-2xl border border-white/20 dark:border-white/10 p-6">
+      <div className="rounded-2xl border border-white/20 dark:border-white/10 p-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500/10 to-purple-500/10">
             <FolderKanban className="h-5 w-5 text-indigo-500" />
@@ -93,7 +93,7 @@ export default function NewProjectPage() {
               placeholder="My Awesome Project"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="glass-card border-white/20 dark:border-white/10 h-11"
+              className="border-white/20 dark:border-white/10 h-11"
               required
             />
             {name && (
@@ -111,7 +111,7 @@ export default function NewProjectPage() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="glass-card border-white/20 dark:border-white/10"
+              className="border-white/20 dark:border-white/10"
             />
           </div>
 
@@ -141,14 +141,14 @@ export default function NewProjectPage() {
               placeholder="https://github.com/username/repo"
               value={repoUrl}
               onChange={(e) => setRepoUrl(e.target.value)}
-              className="glass-card border-white/20 dark:border-white/10 h-11"
+              className="border-white/20 dark:border-white/10 h-11"
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="priority" className="text-sm font-medium">Priority</Label>
             <Select value={priority} onValueChange={(v) => setPriority(v || '3')}>
-              <SelectTrigger className="glass-card border-white/20 dark:border-white/10 h-11">
+              <SelectTrigger className="border-white/20 dark:border-white/10 h-11">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -163,7 +163,7 @@ export default function NewProjectPage() {
 
           <div className="flex justify-end gap-2 pt-2">
             <Link href="/projects">
-              <Button type="button" variant="outline" className="glass-card">
+              <Button type="button" variant="outline">
                 Cancel
               </Button>
             </Link>

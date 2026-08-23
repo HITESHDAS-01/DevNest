@@ -106,10 +106,7 @@ export default function DashboardPage() {
 
       {/* Welcome Card */}
       {projects.length === 0 && !loading && (
-        <div className="relative overflow-hidden rounded-2xl glass-hero border border-white/20 dark:border-white/10">
-          <div className="absolute inset-0 mesh-gradient opacity-60" />
-          <div className="glow-dot bg-indigo-500/20 -top-20 -right-20 w-60 h-60 animate-pulse-glow" />
-          <div className="glow-dot bg-purple-500/15 -bottom-16 -left-16 w-48 h-48 animate-pulse-glow delay-500" />
+        <div className="relative overflow-hidden rounded-2xl border border-white/20 dark:border-white/10">
           <CardContent className="relative flex flex-col items-center justify-center py-20 text-center">
             <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/25">
               <FolderKanban className="h-8 w-8 text-white" />
@@ -131,8 +128,7 @@ export default function DashboardPage() {
 
       {/* Recommendation Card */}
       {recommendations.length > 0 && (
-        <div className="relative overflow-hidden rounded-2xl glass-card border border-white/20 dark:border-white/10">
-          <div className="absolute inset-0 mesh-gradient opacity-40" />
+        <div className="relative overflow-hidden rounded-2xl border border-white/20 dark:border-white/10">
           <CardHeader className="relative pb-2">
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2.5 text-lg">
@@ -142,7 +138,7 @@ export default function DashboardPage() {
                 What should I work on next?
               </CardTitle>
               <Link href="/today">
-                <Button variant="outline" size="sm" className="glass-card">
+                <Button variant="outline" size="sm" className="bg-card border border-border">
                   View All
                 </Button>
               </Link>
@@ -153,7 +149,7 @@ export default function DashboardPage() {
               {recommendations.map((rec) => (
                 <div
                   key={rec.id}
-                  className="flex items-center justify-between rounded-xl border border-white/20 dark:border-white/10 glass-card p-3.5 transition-all hover:shadow-md"
+                  className="flex items-center justify-between rounded-xl border border-white/20 dark:border-white/10 p-3.5 transition-all hover:shadow-md"
                 >
                   <div className="flex items-center gap-3">
                     <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-xs font-bold text-white shadow-sm">
@@ -166,7 +162,7 @@ export default function DashboardPage() {
                       </p>
                     </div>
                   </div>
-                  <Button size="sm" variant="outline" className="glass-card">
+                  <Button size="sm" variant="outline" className="bg-card border border-border">
                     Start
                   </Button>
                 </div>
@@ -177,7 +173,7 @@ export default function DashboardPage() {
       )}
 
       {recommendations.length === 0 && !loading && projects.length > 0 && (
-        <div className="rounded-2xl glass-card border border-white/20 dark:border-white/10 p-8 text-center">
+        <div className="rounded-2xl border border-white/20 dark:border-white/10 p-8 text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted/50 mx-auto mb-3">
             <Lightbulb className="h-6 w-6 text-muted-foreground/50" />
           </div>
@@ -192,7 +188,7 @@ export default function DashboardPage() {
         {statConfig.map((stat) => {
           const value = stats[stat.key];
           return (
-            <div key={stat.label} className="glass-card rounded-xl p-4 transition-all hover:shadow-md">
+            <div key={stat.label} className="rounded-xl p-4 transition-all hover:shadow-md">
               <div className="flex items-center gap-3">
                 <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${stat.gradient} shadow-sm`}>
                   <stat.icon className="h-5 w-5 text-white" />
@@ -212,7 +208,7 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Projects</h2>
           <Link href="/projects/new">
-            <Button variant="outline" size="sm" className="glass-card">
+            <Button variant="outline" size="sm" className="bg-card border border-border">
               <Plus className="mr-1 h-3 w-3" />
               New
             </Button>
@@ -224,7 +220,7 @@ export default function DashboardPage() {
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : projects.length === 0 ? (
-          <div className="rounded-2xl glass-card border border-white/20 dark:border-white/10 p-12 text-center">
+          <div className="rounded-2xl border border-white/20 dark:border-white/10 p-12 text-center">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted/50 mx-auto mb-4">
               <FolderKanban className="h-7 w-7 text-muted-foreground/50" />
             </div>

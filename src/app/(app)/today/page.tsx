@@ -103,8 +103,7 @@ export default function TodayPage() {
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
       ) : active.length === 0 ? (
-        <div className="relative overflow-hidden rounded-2xl glass-card border border-white/20 dark:border-white/10 p-16 text-center">
-          <div className="absolute inset-0 mesh-gradient opacity-40" />
+        <div className="relative overflow-hidden rounded-2xl border border-white/20 dark:border-white/10 p-16 text-center">
           <div className="relative">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-400/10 to-orange-500/10 mx-auto mb-5">
               <Lightbulb className="h-8 w-8 text-yellow-500/50" />
@@ -119,8 +118,7 @@ export default function TodayPage() {
         <>
           {/* Best Next Action */}
           {top && (
-            <div className="relative overflow-hidden rounded-2xl glass-card border border-white/20 dark:border-white/10">
-              <div className="absolute inset-0 mesh-gradient opacity-30" />
+            <div className="relative overflow-hidden rounded-2xl border border-white/20 dark:border-white/10">
               <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl" />
               <div className="relative p-6">
                 <div className="flex items-center gap-2.5 mb-4">
@@ -166,7 +164,7 @@ export default function TodayPage() {
                     <Button
                       size="lg"
                       variant="outline"
-                      className="glass-card"
+                      className="bg-card border border-border"
                       onClick={() => handleSkip(top.id)}
                     >
                       <SkipForward className="mr-2 h-4 w-4" />
@@ -180,13 +178,13 @@ export default function TodayPage() {
 
           {/* Other Recommendations */}
           {rest.length > 0 && (
-            <div className="glass-card rounded-xl border border-white/20 dark:border-white/10 p-5">
+            <div className="rounded-xl border border-white/20 dark:border-white/10 p-5">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">Other Priorities</p>
               <div className="space-y-2">
                 {rest.map((rec, i) => (
                   <div
                     key={rec.id}
-                    className="flex items-center justify-between gap-4 rounded-xl border border-white/10 dark:border-white/5 glass-card p-4 transition-all hover:shadow-md"
+                    className="flex items-center justify-between gap-4 rounded-xl border border-white/10 dark:border-white/5 p-4 transition-all hover:shadow-md"
                   >
                     <div className="flex items-center gap-4 min-w-0 flex-1">
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-sm font-bold text-white shadow-sm">
@@ -227,7 +225,7 @@ export default function TodayPage() {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="glass-card"
+                      className="bg-card border border-border"
                         onClick={() => handleSkip(rec.id)}
                       >
                         Skip

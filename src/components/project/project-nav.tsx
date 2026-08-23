@@ -27,7 +27,7 @@ export function ProjectNav({ projectSlug }: ProjectNavProps) {
   const basePath = `/projects/${projectSlug}`;
 
   return (
-    <nav className="flex space-x-1 overflow-x-auto rounded-xl glass-card border border-white/20 dark:border-white/10 p-1">
+    <nav className="flex space-x-1 overflow-x-auto rounded-xl border border-white/20 dark:border-white/10 p-1">
       {navigation.map((item) => {
         const href = `${basePath}${item.href}`;
         const isActive =

@@ -65,8 +65,7 @@ export default function ProjectsPage() {
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
       ) : projects.length === 0 ? (
-        <div className="relative overflow-hidden rounded-2xl glass-card border border-white/20 dark:border-white/10 p-16 text-center">
-          <div className="absolute inset-0 mesh-gradient opacity-40" />
+        <div className="relative overflow-hidden rounded-2xl bg-card border border-border p-16 text-center">
           <div className="relative">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500/10 to-purple-500/10 mx-auto mb-5">
               <FolderKanban className="h-8 w-8 text-indigo-500/50" />

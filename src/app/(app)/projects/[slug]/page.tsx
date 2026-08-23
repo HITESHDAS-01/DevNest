@@ -226,8 +226,7 @@ export default function ProjectOverviewPage({
       )}
 
       {/* Header */}
-      <div className="relative overflow-hidden rounded-2xl glass-card border border-white/20 dark:border-white/10 p-6">
-        <div className="absolute inset-0 mesh-gradient opacity-30" />
+      <div className="relative overflow-hidden rounded-2xl bg-card border border-border p-6">
         <div className="relative flex items-start gap-4">
           <div
             className="h-14 w-14 shrink-0 rounded-2xl shadow-lg"
@@ -270,7 +269,7 @@ export default function ProjectOverviewPage({
       </div>
 
       {/* GitHub Integration */}
-      <div className="glass-card rounded-xl border border-white/20 dark:border-white/10 p-5">
+      <div className="bg-card border border-border rounded-xl p-5">
         <div className="flex items-center gap-2 mb-3">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-500/10">
             <GitBranch className="h-3.5 w-3.5 text-gray-500" />
@@ -294,7 +293,7 @@ export default function ProjectOverviewPage({
               <Button
                 size="sm"
                 variant="outline"
-                className="glass-card"
+                className=""
                 onClick={handleSyncGithub}
                 disabled={githubSyncing}
               >
@@ -316,14 +315,14 @@ export default function ProjectOverviewPage({
               placeholder="https://github.com/owner/repo"
               value={githubRepoUrl}
               onChange={(e) => setGithubRepoUrl(e.target.value)}
-              className="w-full h-9 text-sm glass-card border-white/20 dark:border-white/10"
+              className="w-full h-9 text-sm border-white/20 dark:border-white/10"
             />
             <Input
               type="password"
               placeholder="Fine-grained PAT (optional, for private repos)"
               value={githubPAT}
               onChange={(e) => setGithubPAT(e.target.value)}
-              className="w-full h-9 text-sm glass-card border-white/20 dark:border-white/10"
+              className="w-full h-9 text-sm border-white/20 dark:border-white/10"
             />
             <p className="text-[11px] text-muted-foreground">
               Public repos don't need a token. For private repos, create a fine-grained PAT with Issues & PR read access.
@@ -344,7 +343,7 @@ export default function ProjectOverviewPage({
       </div>
 
       {/* Phase Pipeline */}
-      <div className="glass-card rounded-xl border border-white/20 dark:border-white/10 p-5">
+      <div className="bg-card border border-border rounded-xl p-5">
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">Phase Pipeline</p>
         <div className="flex items-center">
           {phases.map((phase, index) => (
@@ -396,7 +395,7 @@ export default function ProjectOverviewPage({
 
       {/* Two Column: Blockers + Next Up */}
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="glass-card rounded-xl border border-white/20 dark:border-white/10 p-5">
+        <div className="bg-card border border-border rounded-xl p-5">
           <div className="flex items-center gap-2 mb-4">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-500/10">
               <AlertTriangle className="h-3.5 w-3.5 text-red-500" />
@@ -418,7 +417,7 @@ export default function ProjectOverviewPage({
               {blockers.map((blocker) => (
                 <div
                   key={blocker.id}
-                  className="flex items-center justify-between rounded-lg border border-white/10 dark:border-white/5 glass-card p-3 transition-all hover:shadow-md"
+                  className="flex items-center justify-between rounded-lg border border-white/10 dark:border-white/5 bg-card p-3 transition-all hover:shadow-md"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div
@@ -449,7 +448,7 @@ export default function ProjectOverviewPage({
           )}
         </div>
 
-        <div className="glass-card rounded-xl border border-white/20 dark:border-white/10 p-5">
+        <div className="bg-card border border-border rounded-xl p-5">
           <div className="flex items-center gap-2 mb-4">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/10">
               <ArrowRight className="h-3.5 w-3.5 text-indigo-500" />
@@ -463,7 +462,7 @@ export default function ProjectOverviewPage({
               </div>
               <p className="text-sm text-muted-foreground">No tasks yet</p>
               <Link href={`/projects/${project.slug}/tasks`}>
-                <Button variant="outline" size="sm" className="mt-3 glass-card">
+                <Button variant="outline" size="sm" className="mt-3">
                   <Plus className="mr-1 h-3 w-3" />
                   Add Task
                 </Button>
@@ -474,7 +473,7 @@ export default function ProjectOverviewPage({
               {nextTasks.map((task) => (
                 <div
                   key={task.id}
-                  className="flex items-center justify-between rounded-lg border border-white/10 dark:border-white/5 glass-card p-3 transition-all hover:shadow-md"
+                  className="flex items-center justify-between rounded-lg border border-white/10 dark:border-white/5 bg-card p-3 transition-all hover:shadow-md"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-[11px] font-bold text-white shadow-sm">
@@ -495,7 +494,7 @@ export default function ProjectOverviewPage({
       </div>
 
       {/* Recent Activity */}
-      <div className="glass-card rounded-xl border border-white/20 dark:border-white/10 p-5">
+      <div className="bg-card border border-border rounded-xl p-5">
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">Recent Activity</p>
         {recentActivity.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8">

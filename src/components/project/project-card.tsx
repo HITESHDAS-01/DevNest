@@ -56,7 +56,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
   return (
     <Link href={`/projects/${project.slug}`}>
-      <div className="glass-card rounded-xl p-5 cursor-pointer group transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-1 border border-white/20 dark:border-white/10">
+      <div className="rounded-xl p-5 cursor-pointer group transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-1 border border-white/20 dark:border-white/10">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2.5">
             <div

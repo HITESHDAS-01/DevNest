@@ -97,7 +97,7 @@ export default function SearchPage() {
           placeholder="Search projects, tasks, notes, decisions..."
           value={query}
           onChange={(e) => handleInputChange(e.target.value)}
-          className="h-12 pl-12 text-base glass-card border-white/20 dark:border-white/10 rounded-xl"
+          className="h-12 pl-12 text-base border-white/20 dark:border-white/10 rounded-xl"
           autoFocus
         />
         {loading && (
@@ -122,7 +122,7 @@ export default function SearchPage() {
       {loading && (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="glass-card rounded-xl border border-white/20 dark:border-white/10 p-4">
+            <div key={i} className="bg-card border border-border rounded-xl p-4">
               <div className="flex items-center gap-4">
                 <div className="h-10 w-10 animate-pulse rounded-xl bg-muted" />
                 <div className="flex-1 space-y-2">
@@ -171,7 +171,7 @@ export default function SearchPage() {
                   {items.map((result) => (
                     <div
                       key={result.id}
-                      className="glass-card rounded-xl border border-white/20 dark:border-white/10 p-4 cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5"
+                      className="bg-card border border-border rounded-xl p-4 cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5"
                     >
                       <div className="flex items-center gap-4">
                         <div

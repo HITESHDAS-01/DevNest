@@ -22,7 +22,7 @@ export function Header() {
   };
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-white/10 dark:border-white/5 glass-nav px-4">
+    <header className="flex h-14 items-center justify-between border-b border-white/10 dark:border-white/5 px-4">
       <div className="flex items-center gap-2">
         <h1 className="text-sm font-medium text-muted-foreground">
           Developer Project Operating System
@@ -38,7 +38,7 @@ export function Header() {
               </AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56 glass-card" align="end">
+          <DropdownMenuContent className="w-56" align="end">
             <div className="flex items-center gap-2.5 p-2.5">
               <Avatar className="h-9 w-9">
                 <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-sm font-semibold">

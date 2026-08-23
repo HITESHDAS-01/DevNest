@@ -34,14 +34,8 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 relative overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute inset-0 mesh-gradient" />
-      <div className="glow-dot bg-indigo-500/15 top-20 left-1/4 animate-pulse-glow" />
-      <div className="glow-dot bg-purple-500/10 bottom-20 right-1/4 animate-pulse-glow delay-1000" />
-      <div className="glow-dot bg-pink-500/10 top-1/2 right-1/3 animate-pulse-glow delay-500" />
-
       <div className="relative w-full max-w-md mx-4">
-        <div className="glass-card rounded-2xl border border-white/20 dark:border-white/10 shadow-2xl shadow-indigo-500/5 p-8">
+        <div className="rounded-2xl border border-white/20 dark:border-white/10 shadow-2xl shadow-indigo-500/5 p-8">
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/25">
@@ -63,7 +57,7 @@ export default function LoginPage() {
                 placeholder="dev@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-11 glass-card border-white/20 dark:border-white/10"
+                className="h-11 border-white/20 dark:border-white/10"
                 required
               />
             </div>
@@ -75,7 +69,7 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="h-11 glass-card border-white/20 dark:border-white/10"
+                className="h-11 border-white/20 dark:border-white/10"
                 required
               />
             </div>

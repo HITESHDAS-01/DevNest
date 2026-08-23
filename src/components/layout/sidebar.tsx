@@ -31,7 +31,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <div className="flex h-full w-64 flex-col glass-nav border-r border-white/10 dark:border-white/5">
+    <div className="flex h-full w-64 flex-col border-r border-white/10 dark:border-white/5">
       <div className="flex h-14 items-center gap-2.5 px-4 border-b border-white/10 dark:border-white/5">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 shadow-md shadow-indigo-500/20">
           <span className="text-base">🪹</span>
@@ -77,7 +77,7 @@ export function Sidebar() {
       </nav>
 
       <div className="px-3 py-3">
-        <div className="glass-card rounded-xl p-3.5">
+        <div className="bg-card border border-border rounded-xl p-3.5">
           <div className="flex items-center gap-2 text-sm font-medium">
             <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-yellow-400 to-orange-500 shadow-sm">
               <Zap className="h-3 w-3 text-white" />

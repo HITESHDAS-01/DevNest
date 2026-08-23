@@ -17,7 +17,7 @@ export function MobileNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 dark:border-white/5 glass-nav md:hidden backdrop-blur-xl">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 dark:border-white/5 md:hidden backdrop-blur-xl">
       <div className="flex h-16 items-center justify-around">
         {navigation.map((item) => {
           const isActive =

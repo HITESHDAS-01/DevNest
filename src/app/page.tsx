@@ -222,7 +222,7 @@ export default function LandingPage() {
 
       <div className="flex flex-col min-h-screen">
         {/* Navbar */}
-        <header className="sticky top-0 z-50 glass-nav">
+        <header className="sticky top-0 z-50">
           <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
             <div className="flex items-center gap-2">
               <span className="text-2xl">🪹</span>
@@ -256,15 +256,7 @@ export default function LandingPage() {
         </header>
 
         {/* Hero */}
-        <section className="relative overflow-hidden py-20 md:py-32 glass-hero">
-          {/* Glow dots */}
-          <div className="glow-dot bg-indigo-500/30 dark:bg-indigo-500/40 top-0 left-1/4 animate-pulse-glow" />
-          <div className="glow-dot bg-purple-500/25 dark:bg-purple-500/35 bottom-0 right-1/4 animate-pulse-glow delay-1000" />
-          <div className="glow-dot bg-pink-500/15 dark:bg-pink-500/25 top-1/2 right-0 animate-pulse-glow delay-500" />
-
-          {/* Mesh gradient overlay */}
-          <div className="absolute inset-0 mesh-gradient" />
-
+        <section className="relative overflow-hidden py-20 md:py-32">
           <div className="container relative mx-auto px-4 md:px-6 text-center">
             <div className="mx-auto max-w-3xl">
               <div className="animate-fade-in-up inline-flex items-center gap-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 px-4 py-1.5 text-sm mb-6">
@@ -289,7 +281,7 @@ export default function LandingPage() {
                   </Button>
                 </Link>
                 <a href="#features">
-                  <Button variant="outline" size="lg" className="text-base px-8 glass">
+                  <Button variant="outline" size="lg" className="text-base px-8">
                     See Features
                   </Button>
                 </a>
@@ -303,7 +295,6 @@ export default function LandingPage() {
 
         {/* Features */}
         <section id="features" className="py-20 md:py-28 relative">
-          <div className="absolute inset-0 mesh-gradient opacity-50" />
           <div className="container relative mx-auto px-4 md:px-6">
             <div className="text-center mb-12">
               <h2 className="animate-fade-in-up text-3xl font-bold md:text-4xl">
@@ -318,7 +309,7 @@ export default function LandingPage() {
               {features.map((feature, i) => (
                 <div
                   key={feature.title}
-                  className={`animate-fade-in-up delay-${(i + 1) * 100} glass-card group rounded-xl p-6 cursor-default`}
+                  className={`animate-fade-in-up delay-${(i + 1) * 100} bg-card border border-border group rounded-xl p-6 cursor-default`}
                 >
                   <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
                     <feature.icon className="h-6 w-6 text-primary" />
@@ -334,8 +325,7 @@ export default function LandingPage() {
         </section>
 
         {/* How It Works */}
-        <section id="how-it-works" className="py-20 md:py-28 relative glass-hero">
-          <div className="absolute inset-0 mesh-gradient" />
+        <section id="how-it-works" className="py-20 md:py-28 relative">
           <div className="container relative mx-auto px-4 md:px-6">
             <div className="text-center mb-12">
               <h2 className="animate-fade-in-up text-3xl font-bold md:text-4xl">
@@ -363,7 +353,6 @@ export default function LandingPage() {
 
         {/* Testimonials */}
         <section className="py-20 md:py-28 relative">
-          <div className="absolute inset-0 mesh-gradient opacity-30" />
           <div className="container relative mx-auto px-4 md:px-6">
             <div className="text-center mb-12">
               <h2 className="animate-fade-in-up text-3xl font-bold md:text-4xl">
@@ -374,7 +363,7 @@ export default function LandingPage() {
               {testimonials.map((t, i) => (
                 <div
                   key={i}
-                  className={`animate-fade-in-up delay-${(i + 1) * 100} glass-card rounded-xl p-6`}
+                  className={`animate-fade-in-up delay-${(i + 1) * 100} bg-card border border-border rounded-xl p-6`}
                 >
                   <p className="text-muted-foreground italic">
                     &ldquo;{t.quote}&rdquo;
@@ -390,8 +379,7 @@ export default function LandingPage() {
         </section>
 
         {/* Pricing */}
-        <section id="pricing" className="py-20 md:py-28 relative glass-hero">
-          <div className="absolute inset-0 mesh-gradient" />
+        <section id="pricing" className="py-20 md:py-28 relative">
           <div className="container relative mx-auto px-4 md:px-6">
             <div className="text-center mb-12">
               <h2 className="animate-fade-in-up text-3xl font-bold md:text-4xl">
@@ -407,8 +395,8 @@ export default function LandingPage() {
                   key={plan.name}
                   className={`animate-fade-in-up delay-${(i + 1) * 100} rounded-xl p-6 ${
                     plan.highlighted
-                      ? 'glass-pricing-highlighted animate-pulse-glow'
-                      : 'glass-pricing'
+                      ? 'bg-primary/10 border-2 border-primary/40 animate-pulse-glow'
+                      : 'bg-card border border-border'
                   }`}
                 >
                   {plan.highlighted && (
@@ -447,8 +435,7 @@ export default function LandingPage() {
         </section>
 
         {/* CTA */}
-        <section className="py-20 md:py-28 glass-cta text-primary-foreground relative overflow-hidden">
-          <div className="absolute inset-0 mesh-gradient opacity-30" />
+        <section className="py-20 md:py-28 text-primary-foreground relative overflow-hidden">
           <div className="container relative mx-auto px-4 md:px-6 text-center">
             <h2 className="animate-fade-in-up text-3xl font-bold md:text-4xl">
               Ready to Take Control?
@@ -471,8 +458,7 @@ export default function LandingPage() {
         </section>
 
         {/* Footer */}
-        <footer className="border-t py-12 glass-hero relative">
-          <div className="absolute inset-0 mesh-gradient opacity-30" />
+        <footer className="border-t py-12 relative">
           <div className="container relative mx-auto px-4 md:px-6">
             <div className="grid gap-8 md:grid-cols-4">
               <div>

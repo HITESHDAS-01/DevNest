@@ -32,7 +32,7 @@ export function CommandPalette() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="overflow-hidden p-0 glass-card rounded-2xl border border-white/20 dark:border-white/10 shadow-2xl">
+      <DialogContent className="overflow-hidden p-0 rounded-2xl border border-white/20 dark:border-white/10 shadow-2xl">
         <Command className="rounded-2xl">
           <div className="flex items-center border-b border-white/10 dark:border-white/5 px-4">
             <Search className="mr-3 h-4 w-4 shrink-0 text-muted-foreground" />
