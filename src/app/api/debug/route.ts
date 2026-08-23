@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server';
 export async function GET() {
   const debug: Record<string, unknown> = {
     hasDatabaseUrl: !!process.env.DATABASE_URL,
-    databaseUrlPrefix: process.env.DATABASE_URL?.substring(0, 30) + '...',
     nodeEnv: process.env.NODE_ENV,
     timestamp: new Date().toISOString(),
   };
@@ -20,17 +19,27 @@ export async function GET() {
     debug.dbConnected = true;
     debug.dbTime = result.rows[0].time;
 
-    // Test if users table exists
-    const tableCheck = await pool.query(
-      "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'users')"
-    );
-    debug.usersTableExists = tableCheck.rows[0].exists;
+    // Check all tables
+    const tables = ['users', 'organizations', 'members', 'projects', 'tasks', 'blockers', 'milestones', 'notes', 'decisions', 'ideas', 'maintenance_items', 'resources', 'activity_log', 'phases', 'github_integrations'];
+    for (const table of tables) {
+      const res = await pool.query(
+        "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = $1)",
+        [table]
+      );
+      debug[`${table}_exists`] = res.rows[0].exists;
+    }
 
-    // Test if orgs table exists
-    const orgCheck = await pool.query(
-      "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'organizations')"
-    );
-    debug.orgsTableExists = orgCheck.rows[0].exists;
+    // Count users
+    const userCount = await pool.query('SELECT COUNT(*) as count FROM users');
+    debug.userCount = parseInt(userCount.rows[0].count);
+
+    // Count members
+    const memberCount = await pool.query('SELECT COUNT(*) as count FROM members');
+    debug.memberCount = parseInt(memberCount.rows[0].count);
+
+    // Count orgs
+    const orgCount = await pool.query('SELECT COUNT(*) as count FROM organizations');
+    debug.orgCount = parseInt(orgCount.rows[0].count);
 
     await pool.end();
 
@@ -39,7 +48,6 @@ export async function GET() {
     debug.dbConnected = false;
     debug.error = error.message;
     debug.errorCode = error.code;
-    debug.errorSeverity = error.severity;
     return NextResponse.json(debug, { status: 500 });
   }
 }
