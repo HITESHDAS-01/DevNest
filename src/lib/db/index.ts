@@ -8,17 +8,22 @@ function getDb(): PostgresJsDatabase<typeof schema> {
 
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
-    throw new Error(
-      'DATABASE_URL is not set. Add it to your .env.local file.\n' +
-        'Example: DATABASE_URL="postgresql://user:password@localhost:5432/devnest"'
-    );
+    throw new Error('DATABASE_URL is not set');
   }
 
-  // Dynamic imports so the module can be loaded without postgres installed
-  // when DATABASE_URL is not set (e.g. during type-checking).
-  const { default: postgres } = require('postgres');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const postgres = require('postgres');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { drizzle } = require('drizzle-orm/postgres-js');
-  _db = drizzle(postgres(connectionString), { schema }) as any;
+
+  const client = postgres(connectionString, {
+    ssl: connectionString.includes('sslmode=require') ? 'require' : false,
+    max: 10,
+    idle_timeout: 20,
+    connect_timeout: 10,
+  });
+
+  _db = drizzle(client, { schema }) as any;
   return _db!;
 }
 
@@ -29,5 +34,4 @@ export const db = new Proxy({} as PostgresJsDatabase<typeof schema>, {
   },
 });
 
-// Direct accessor for scripts that need a real connection immediately
 export { getDb };
