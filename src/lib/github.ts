@@ -3,7 +3,7 @@ import { createHmac } from 'crypto';
 
 export function getOctokit(accessToken?: string) {
   return new Octokit({
-    auth: accessToken || process.env.GITHUB_TOKEN,
+    auth: accessToken || undefined,
   });
 }
 
@@ -30,46 +30,21 @@ export function verifyWebhookSignature(
   return signature === expected;
 }
 
-export interface GitHubIssue {
-  number: number;
-  title: string;
-  body: string | null;
-  state: 'open' | 'closed';
-  labels: { name: string; color: string }[];
-  created_at: string;
-  updated_at: string;
-  html_url: string;
-  user: { login: string; avatar_url: string } | null;
-}
-
-export interface GitHubPR {
-  number: number;
-  title: string;
-  body: string | null;
-  state: 'open' | 'closed' | 'merged';
-  head: { ref: string };
-  base: { ref: string };
-  created_at: string;
-  updated_at: string;
-  html_url: string;
-  user: { login: string; avatar_url: string } | null;
-}
-
-export interface GitHubRelease {
-  tag_name: string;
-  name: string | null;
-  body: string | null;
-  draft: boolean;
-  prerelease: boolean;
-  created_at: string;
-  html_url: string;
+export async function verifyPAT(token: string): Promise<{ valid: boolean; user?: { login: string; avatar_url: string } }> {
+  try {
+    const octokit = new Octokit({ auth: token });
+    const { data } = await octokit.users.getAuthenticated();
+    return { valid: true, user: { login: data.login, avatar_url: data.avatar_url } };
+  } catch {
+    return { valid: false };
+  }
 }
 
 export async function fetchRepoIssues(
   owner: string,
   repo: string,
   accessToken?: string
-): Promise<GitHubIssue[]> {
+) {
   const octokit = getOctokit(accessToken);
   const { data } = await octokit.issues.listForRepo({
     owner,
@@ -79,14 +54,14 @@ export async function fetchRepoIssues(
     sort: 'updated',
     direction: 'desc',
   });
-  return data.filter((item) => !item.pull_request) as GitHubIssue[];
+  return data.filter((item) => !item.pull_request);
 }
 
 export async function fetchRepoPRs(
   owner: string,
   repo: string,
   accessToken?: string
-): Promise<GitHubPR[]> {
+) {
   const octokit = getOctokit(accessToken);
   const { data } = await octokit.pulls.list({
     owner,
@@ -96,21 +71,7 @@ export async function fetchRepoPRs(
     sort: 'updated',
     direction: 'desc',
   });
-  return data as unknown as GitHubPR[];
-}
-
-export async function fetchRepoReleases(
-  owner: string,
-  repo: string,
-  accessToken?: string
-): Promise<GitHubRelease[]> {
-  const octokit = getOctokit(accessToken);
-  const { data } = await octokit.repos.listReleases({
-    owner,
-    repo,
-    per_page: 20,
-  });
-  return data as GitHubRelease[];
+  return data;
 }
 
 export async function fetchRepoInfo(
@@ -130,29 +91,7 @@ export async function fetchRepoInfo(
     stargazersCount: data.stargazers_count,
     forksCount: data.forks_count,
     openIssuesCount: data.open_issues_count,
+    isPrivate: data.private,
     updatedAt: data.updated_at,
   };
-}
-
-export function getGitHubOAuthUrl(state: string) {
-  const clientId = process.env.GITHUB_CLIENT_ID;
-  const redirectUri = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/auth/github/callback`;
-  return `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=repo,user&state=${state}`;
-}
-
-export async function exchangeGithubCode(code: string) {
-  const response = await fetch('https://github.com/login/oauth/access_token', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-    body: JSON.stringify({
-      client_id: process.env.GITHUB_CLIENT_ID,
-      client_secret: process.env.GITHUB_CLIENT_SECRET,
-      code,
-    }),
-  });
-  const data = await response.json();
-  return data as { access_token?: string; error?: string; error_description?: string };
 }

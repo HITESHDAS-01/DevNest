@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { githubIntegrations, projects, tasks, blockers, activityLog } from '@/lib/db/schema';
@@ -17,7 +16,6 @@ export async function POST(
 
   const { id } = await params;
 
-  // Get project and integration
   const project = await db.query.projects.findFirst({
     where: eq(projects.id, id),
   });
@@ -25,11 +23,7 @@ export async function POST(
     return NextResponse.json({ error: 'Project not found' }, { status: 404 });
   }
 
-  const integration = await db.query.githubIntegrations.findFirst({
-    where: eq(githubIntegrations.projectId, id),
-  });
-
-  const repoUrl = project.repoUrl || (integration ? `https://github.com/${integration.repoOwner}/${integration.repoName}` : null);
+  const repoUrl = project.repoUrl;
   if (!repoUrl) {
     return NextResponse.json({ error: 'No GitHub repo linked' }, { status: 400 });
   }
@@ -39,14 +33,13 @@ export async function POST(
     return NextResponse.json({ error: 'Invalid repo URL' }, { status: 400 });
   }
 
-  const cookieStore = await cookies();
-  const githubToken = cookieStore.get('github-token')?.value;
+  // Use PAT from project (null for public repos)
+  const pat = project.githubPAT || undefined;
 
   try {
-    // Fetch issues and PRs
     const [issues, prs] = await Promise.all([
-      fetchRepoIssues(parsed.owner, parsed.repo, githubToken),
-      fetchRepoPRs(parsed.owner, parsed.repo, githubToken),
+      fetchRepoIssues(parsed.owner, parsed.repo, pat),
+      fetchRepoPRs(parsed.owner, parsed.repo, pat),
     ]);
 
     let tasksCreated = 0;
@@ -62,9 +55,8 @@ export async function POST(
         (t) => t.title === `#${issue.number}: ${issue.title}`
       );
       if (!exists) {
-        const isBug = issue.labels.some(
-          (l) => l.name.toLowerCase() === 'bug' || l.name.toLowerCase() === 'error'
-        );
+        const labelNames = issue.labels.map((l) => typeof l === 'string' ? l : l.name?.toLowerCase() || '');
+        const isBug = labelNames.some((n) => n === 'bug' || n === 'error');
         await db.insert(tasks).values({
           projectId: id,
           title: `#${issue.number}: ${issue.title}`,
@@ -77,16 +69,14 @@ export async function POST(
       }
     }
 
-    // Sync open issues labeled as "blocker" or "blocked" as blockers
+    // Sync blocker-labeled issues
     const blockerIssues = issues.filter(
       (i) =>
         i.state === 'open' &&
-        i.labels.some(
-          (l) =>
-            l.name.toLowerCase() === 'blocker' ||
-            l.name.toLowerCase() === 'blocked' ||
-            l.name.toLowerCase() === 'critical'
-        )
+        i.labels.some((l) => {
+          const name = typeof l === 'string' ? l : l.name?.toLowerCase() || '';
+          return name === 'blocker' || name === 'blocked' || name === 'critical';
+        })
     );
 
     for (const issue of blockerIssues.slice(0, 20)) {
@@ -97,9 +87,10 @@ export async function POST(
         (b) => b.title === `#${issue.number}: ${issue.title}`
       );
       if (!exists) {
-        const isHigh = issue.labels.some(
-          (l) => l.name.toLowerCase() === 'critical'
-        );
+        const isHigh = issue.labels.some((l) => {
+          const name = typeof l === 'string' ? l : l.name?.toLowerCase() || '';
+          return name === 'critical';
+        });
         await db.insert(blockers).values({
           projectId: id,
           title: `#${issue.number}: ${issue.title}`,
@@ -111,7 +102,7 @@ export async function POST(
       }
     }
 
-    // Sync open PRs as blockers (PRs in review = blocked on review)
+    // Sync open PRs as blockers
     const openPrs = prs.filter((p) => p.state === 'open');
     for (const pr of openPrs.slice(0, 20)) {
       const existingBlockers = await db.query.blockers.findMany({
@@ -132,7 +123,10 @@ export async function POST(
       }
     }
 
-    // Update last synced time
+    // Update last synced
+    const integration = await db.query.githubIntegrations.findFirst({
+      where: eq(githubIntegrations.projectId, id),
+    });
     if (integration) {
       await db
         .update(githubIntegrations)

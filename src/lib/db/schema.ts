@@ -147,6 +147,7 @@ export const projects = pgTable('projects', {
   color: text('color').default('#6366f1'),
   icon: text('icon'),
   repoUrl: text('repo_url'),
+  githubPAT: text('github_pat'),
   stage: projectStageEnum('stage').default('idea'),
   status: projectStatusEnum('status').default('active'),
   health: projectHealthEnum('health').default('green'),

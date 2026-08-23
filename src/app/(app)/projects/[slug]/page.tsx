@@ -109,6 +109,7 @@ export default function ProjectOverviewPage({
   const [githubSyncing, setGithubSyncing] = useState(false);
   const [githubLinking, setGithubLinking] = useState(false);
   const [githubRepoUrl, setGithubRepoUrl] = useState('');
+  const [githubPAT, setGithubPAT] = useState('');
   const [syncResult, setSyncResult] = useState<string | null>(null);
 
   const fetchData = useCallback(async (slug: string) => {
@@ -161,11 +162,12 @@ export default function ProjectOverviewPage({
       const res = await fetch(`/api/projects/${project?.id}/github/link`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ repoUrl: githubRepoUrl }),
+        body: JSON.stringify({ repoUrl: githubRepoUrl, pat: githubPAT || undefined }),
       });
       if (res.ok) {
         setGithubLinked(true);
         setGithubRepoUrl('');
+        setGithubPAT('');
       }
     } finally {
       setGithubLinking(false);
@@ -309,13 +311,23 @@ export default function ProjectOverviewPage({
             )}
           </div>
         ) : (
-          <div className="flex gap-2">
+          <div className="space-y-3">
             <Input
               placeholder="https://github.com/owner/repo"
               value={githubRepoUrl}
               onChange={(e) => setGithubRepoUrl(e.target.value)}
-              className="flex-1 h-9 text-sm glass-card border-white/20 dark:border-white/10"
+              className="w-full h-9 text-sm glass-card border-white/20 dark:border-white/10"
             />
+            <Input
+              type="password"
+              placeholder="Fine-grained PAT (optional, for private repos)"
+              value={githubPAT}
+              onChange={(e) => setGithubPAT(e.target.value)}
+              className="w-full h-9 text-sm glass-card border-white/20 dark:border-white/10"
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Public repos don't need a token. For private repos, create a fine-grained PAT with Issues & PR read access.
+            </p>
             <Button
               size="sm"
               onClick={handleLinkGithub}
@@ -323,10 +335,9 @@ export default function ProjectOverviewPage({
               className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-sm"
             >
               {githubLinking ? (
-                <Loader2 className="h-3 w-3 animate-spin" />
-              ) : (
-                'Link Repo'
-              )}
+                <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
+              ) : null}
+              Link Repository
             </Button>
           </div>
         )}

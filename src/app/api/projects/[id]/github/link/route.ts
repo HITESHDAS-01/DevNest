@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { githubIntegrations, projects } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
-import { parseRepoUrl, fetchRepoInfo } from '@/lib/github';
+import { eq } from 'drizzle-orm';
+import { parseRepoUrl, fetchRepoInfo, verifyPAT } from '@/lib/github';
 
 export async function POST(
   request: Request,
@@ -17,7 +16,7 @@ export async function POST(
 
   const { id } = await params;
   const body = await request.json();
-  const { repoUrl } = body;
+  const { repoUrl, pat } = body;
 
   if (!repoUrl) {
     return NextResponse.json({ error: 'repoUrl is required' }, { status: 400 });
@@ -36,21 +35,35 @@ export async function POST(
     return NextResponse.json({ error: 'Project not found' }, { status: 404 });
   }
 
-  const cookieStore = await cookies();
-  const githubToken = cookieStore.get('github-token')?.value;
-
-  // Try to fetch repo info
-  let repoInfo;
-  try {
-    repoInfo = await fetchRepoInfo(parsed.owner, parsed.repo, githubToken);
-  } catch {
-    return NextResponse.json({ error: 'Repository not found or not accessible' }, { status: 404 });
+  // If PAT provided, verify it works
+  let patUser: { login: string; avatar_url: string } | undefined;
+  if (pat) {
+    const verification = await verifyPAT(pat);
+    if (!verification.valid) {
+      return NextResponse.json({ error: 'Invalid Personal Access Token' }, { status: 400 });
+    }
+    patUser = verification.user;
   }
 
-  // Update project repoUrl
+  // Try to fetch repo info (public repos work without auth, private need PAT)
+  let repoInfo;
+  try {
+    repoInfo = await fetchRepoInfo(parsed.owner, parsed.repo, pat || undefined);
+  } catch {
+    return NextResponse.json(
+      { error: 'Repository not found. If private, make sure your PAT has access.' },
+      { status: 404 }
+    );
+  }
+
+  // Update project
   await db
     .update(projects)
-    .set({ repoUrl: repoInfo.htmlUrl, updatedAt: new Date() })
+    .set({
+      repoUrl: repoInfo.htmlUrl,
+      githubPAT: pat || null,
+      updatedAt: new Date(),
+    })
     .where(eq(projects.id, id));
 
   // Create or update github integration record
@@ -86,6 +99,8 @@ export async function POST(
       language: repoInfo.language,
       stars: repoInfo.stargazersCount,
       openIssues: repoInfo.openIssuesCount,
+      isPrivate: repoInfo.isPrivate,
     },
+    user: patUser ? { login: patUser.login, avatarUrl: patUser.avatar_url } : null,
   });
 }
