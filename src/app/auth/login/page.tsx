@@ -80,11 +80,11 @@ export default function LoginPage() {
             )}
             <Button type="submit" className="w-full h-11 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30 transition-all" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Sign In (Demo Mode)
+              Sign In
             </Button>
           </form>
           <p className="mt-6 text-xs text-center text-muted-foreground">
-            Enter any email and password to try DevNest
+            New here? Just enter any email and password to get started
           </p>
         </div>
       </div>
