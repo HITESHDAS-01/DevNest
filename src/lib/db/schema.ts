@@ -119,7 +119,9 @@ export const users = pgTable('users', {
   email: text('email').unique().notNull(),
   name: text('name'),
   avatarUrl: text('avatar_url'),
+  githubPAT: text('github_pat'),
   createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at'),
 });
 
 // Members (org membership)

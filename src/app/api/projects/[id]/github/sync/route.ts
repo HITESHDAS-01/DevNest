@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { githubIntegrations, projects, tasks, blockers, activityLog } from '@/lib/db/schema';
+import { githubIntegrations, projects, tasks, blockers, activityLog, users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { parseRepoUrl, fetchRepoIssues, fetchRepoPRs } from '@/lib/github';
 
@@ -33,8 +33,14 @@ export async function POST(
     return NextResponse.json({ error: 'Invalid repo URL' }, { status: 400 });
   }
 
-  // Use PAT from project (null for public repos)
-  const pat = project.githubPAT || undefined;
+  // Use per-project PAT, or fall back to global user PAT
+  let pat = project.githubPAT || undefined;
+  if (!pat) {
+    const currentUser = await db.query.users.findFirst({
+      where: eq(users.id, session.user.id),
+    });
+    pat = currentUser?.githubPAT || undefined;
+  }
 
   try {
     const [issues, prs] = await Promise.all([

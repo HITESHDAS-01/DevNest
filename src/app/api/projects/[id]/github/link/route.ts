@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { githubIntegrations, projects } from '@/lib/db/schema';
+import { githubIntegrations, projects, users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { parseRepoUrl, fetchRepoInfo, verifyPAT } from '@/lib/github';
 
@@ -35,10 +35,19 @@ export async function POST(
     return NextResponse.json({ error: 'Project not found' }, { status: 404 });
   }
 
+  // Use per-project PAT, or fall back to global user PAT
+  let effectivePAT = pat;
+  if (!effectivePAT) {
+    const currentUser = await db.query.users.findFirst({
+      where: eq(users.id, session.user.id),
+    });
+    effectivePAT = currentUser?.githubPAT || undefined;
+  }
+
   // If PAT provided, verify it works
   let patUser: { login: string; avatar_url: string } | undefined;
-  if (pat) {
-    const verification = await verifyPAT(pat);
+  if (effectivePAT) {
+    const verification = await verifyPAT(effectivePAT);
     if (!verification.valid) {
       return NextResponse.json({ error: 'Invalid Personal Access Token' }, { status: 400 });
     }
@@ -48,7 +57,7 @@ export async function POST(
   // Try to fetch repo info (public repos work without auth, private need PAT)
   let repoInfo;
   try {
-    repoInfo = await fetchRepoInfo(parsed.owner, parsed.repo, pat || undefined);
+    repoInfo = await fetchRepoInfo(parsed.owner, parsed.repo, effectivePAT || undefined);
   } catch {
     return NextResponse.json(
       { error: 'Repository not found. If private, make sure your PAT has access.' },
