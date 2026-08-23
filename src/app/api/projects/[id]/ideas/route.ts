@@ -3,6 +3,7 @@ import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { ideas } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { resolveProjectId } from '@/lib/db/helpers';
 
 export async function GET(
   request: Request,
@@ -14,9 +15,13 @@ export async function GET(
   }
 
   const { id } = await params;
+  const projectId = await resolveProjectId(id);
+  if (!projectId) {
+    return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+  }
 
   const projectIdeas = await db.query.ideas.findMany({
-    where: eq(ideas.projectId, id),
+    where: eq(ideas.projectId, projectId),
     orderBy: (i, { desc: d }) => [d(i.createdAt)],
   });
 
@@ -33,6 +38,10 @@ export async function POST(
   }
 
   const { id } = await params;
+  const projectId = await resolveProjectId(id);
+  if (!projectId) {
+    return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+  }
   const body = await request.json();
   const { title, description, priority, effort } = body;
 
@@ -43,7 +52,7 @@ export async function POST(
   const newIdea = await db
     .insert(ideas)
     .values({
-      projectId: id,
+      projectId: projectId,
       title,
       description,
       priority: priority || 3,

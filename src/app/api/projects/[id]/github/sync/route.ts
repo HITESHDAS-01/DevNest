@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { githubIntegrations, projects, tasks, blockers, activityLog, users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { parseRepoUrl, fetchRepoIssues, fetchRepoPRs } from '@/lib/github';
+import { resolveProjectId } from '@/lib/db/helpers';
 
 export async function POST(
   request: Request,
@@ -15,9 +16,13 @@ export async function POST(
   }
 
   const { id } = await params;
+  const projectId = await resolveProjectId(id);
+  if (!projectId) {
+    return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+  }
 
   const project = await db.query.projects.findFirst({
-    where: eq(projects.id, id),
+    where: eq(projects.id, projectId),
   });
   if (!project) {
     return NextResponse.json({ error: 'Project not found' }, { status: 404 });
@@ -55,7 +60,7 @@ export async function POST(
     const openIssues = issues.filter((i) => i.state === 'open');
     for (const issue of openIssues.slice(0, 50)) {
       const existingTasks = await db.query.tasks.findMany({
-        where: eq(tasks.projectId, id),
+        where: eq(tasks.projectId, projectId),
       });
       const exists = existingTasks.some(
         (t) => t.title === `#${issue.number}: ${issue.title}`
@@ -64,7 +69,7 @@ export async function POST(
         const labelNames = issue.labels.map((l) => typeof l === 'string' ? l : l.name?.toLowerCase() || '');
         const isBug = labelNames.some((n) => n === 'bug' || n === 'error');
         await db.insert(tasks).values({
-          projectId: id,
+          projectId: projectId,
           title: `#${issue.number}: ${issue.title}`,
           description: issue.body || `GitHub issue from ${parsed.owner}/${parsed.repo}`,
           priority: isBug ? 2 : 3,
@@ -87,7 +92,7 @@ export async function POST(
 
     for (const issue of blockerIssues.slice(0, 20)) {
       const existingBlockers = await db.query.blockers.findMany({
-        where: eq(blockers.projectId, id),
+        where: eq(blockers.projectId, projectId),
       });
       const exists = existingBlockers.some(
         (b) => b.title === `#${issue.number}: ${issue.title}`
@@ -98,7 +103,7 @@ export async function POST(
           return name === 'critical';
         });
         await db.insert(blockers).values({
-          projectId: id,
+          projectId: projectId,
           title: `#${issue.number}: ${issue.title}`,
           description: issue.body || `GitHub issue from ${parsed.owner}/${parsed.repo}`,
           severity: isHigh ? 'high' : 'medium',
@@ -112,14 +117,14 @@ export async function POST(
     const openPrs = prs.filter((p) => p.state === 'open');
     for (const pr of openPrs.slice(0, 20)) {
       const existingBlockers = await db.query.blockers.findMany({
-        where: eq(blockers.projectId, id),
+        where: eq(blockers.projectId, projectId),
       });
       const exists = existingBlockers.some(
         (b) => b.title === `PR #${pr.number}: ${pr.title}`
       );
       if (!exists) {
         await db.insert(blockers).values({
-          projectId: id,
+          projectId: projectId,
           title: `PR #${pr.number}: ${pr.title}`,
           description: pr.body || `Pull request from ${parsed.owner}/${parsed.repo}`,
           severity: 'low',
@@ -131,18 +136,18 @@ export async function POST(
 
     // Update last synced
     const integration = await db.query.githubIntegrations.findFirst({
-      where: eq(githubIntegrations.projectId, id),
+      where: eq(githubIntegrations.projectId, projectId),
     });
     if (integration) {
       await db
         .update(githubIntegrations)
         .set({ lastSyncedAt: new Date() })
-        .where(eq(githubIntegrations.projectId, id));
+        .where(eq(githubIntegrations.projectId, projectId));
     }
 
     // Log activity
     await db.insert(activityLog).values({
-      projectId: id,
+      projectId: projectId,
       entityType: 'github_sync',
       action: 'sync',
       details: { tasksCreated, blockersCreated, issuesTotal: openIssues.length, prsTotal: openPrs.length },

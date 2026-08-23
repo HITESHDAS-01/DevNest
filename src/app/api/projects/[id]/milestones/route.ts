@@ -3,6 +3,7 @@ import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { milestones } from '@/lib/db/schema';
 import { eq, asc } from 'drizzle-orm';
+import { resolveProjectId } from '@/lib/db/helpers';
 
 export async function GET(
   request: Request,
@@ -14,9 +15,13 @@ export async function GET(
   }
 
   const { id } = await params;
+  const projectId = await resolveProjectId(id);
+  if (!projectId) {
+    return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+  }
 
   const projectMilestones = await db.query.milestones.findMany({
-    where: eq(milestones.projectId, id),
+    where: eq(milestones.projectId, projectId),
     orderBy: (m, { asc: a }) => [a(m.order)],
   });
 
@@ -33,6 +38,10 @@ export async function POST(
   }
 
   const { id } = await params;
+  const projectId = await resolveProjectId(id);
+  if (!projectId) {
+    return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+  }
   const body = await request.json();
   const { name, description, targetDate } = body;
 
@@ -41,7 +50,7 @@ export async function POST(
   }
 
   const existing = await db.query.milestones.findMany({
-    where: eq(milestones.projectId, id),
+    where: eq(milestones.projectId, projectId),
     orderBy: (m, { desc: d }) => [d(m.order)],
   });
 
@@ -50,7 +59,7 @@ export async function POST(
   const newMilestone = await db
     .insert(milestones)
     .values({
-      projectId: id,
+      projectId: projectId,
       name,
       description,
       targetDate: targetDate ?? null,

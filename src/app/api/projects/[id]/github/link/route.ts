@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { githubIntegrations, projects, users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { parseRepoUrl, fetchRepoInfo, verifyPAT } from '@/lib/github';
+import { resolveProjectId } from '@/lib/db/helpers';
 
 export async function POST(
   request: Request,
@@ -15,6 +16,10 @@ export async function POST(
   }
 
   const { id } = await params;
+  const projectId = await resolveProjectId(id);
+  if (!projectId) {
+    return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+  }
   const body = await request.json();
   const { repoUrl, pat } = body;
 
@@ -29,7 +34,7 @@ export async function POST(
 
   // Check project exists
   const project = await db.query.projects.findFirst({
-    where: eq(projects.id, id),
+    where: eq(projects.id, projectId),
   });
   if (!project) {
     return NextResponse.json({ error: 'Project not found' }, { status: 404 });
@@ -73,11 +78,11 @@ export async function POST(
       githubPAT: pat || null,
       updatedAt: new Date(),
     })
-    .where(eq(projects.id, id));
+    .where(eq(projects.id, projectId));
 
   // Create or update github integration record
   const existing = await db.query.githubIntegrations.findFirst({
-    where: eq(githubIntegrations.projectId, id),
+    where: eq(githubIntegrations.projectId, projectId),
   });
 
   if (existing) {
@@ -88,10 +93,10 @@ export async function POST(
         repoName: parsed.repo,
         lastSyncedAt: new Date(),
       })
-      .where(eq(githubIntegrations.projectId, id));
+      .where(eq(githubIntegrations.projectId, projectId));
   } else {
     await db.insert(githubIntegrations).values({
-      projectId: id,
+      projectId: projectId,
       repoOwner: parsed.owner,
       repoName: parsed.repo,
     });

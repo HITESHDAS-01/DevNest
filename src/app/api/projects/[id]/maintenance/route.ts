@@ -3,6 +3,7 @@ import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { maintenanceItems } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { resolveProjectId } from '@/lib/db/helpers';
 
 export async function GET(
   request: Request,
@@ -14,9 +15,13 @@ export async function GET(
   }
 
   const { id } = await params;
+  const projectId = await resolveProjectId(id);
+  if (!projectId) {
+    return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+  }
 
   const projectMaintenance = await db.query.maintenanceItems.findMany({
-    where: eq(maintenanceItems.projectId, id),
+    where: eq(maintenanceItems.projectId, projectId),
     orderBy: (m, { desc: d }) => [d(m.createdAt)],
   });
 
@@ -33,6 +38,10 @@ export async function POST(
   }
 
   const { id } = await params;
+  const projectId = await resolveProjectId(id);
+  if (!projectId) {
+    return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+  }
   const body = await request.json();
   const { type, title, description, priority, severity } = body;
 
@@ -46,7 +55,7 @@ export async function POST(
   const newItem = await db
     .insert(maintenanceItems)
     .values({
-      projectId: id,
+      projectId: projectId,
       type,
       title,
       description,

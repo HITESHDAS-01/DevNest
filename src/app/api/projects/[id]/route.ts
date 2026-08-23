@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { projects } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, or } from 'drizzle-orm';
 
 export async function GET(
   request: Request,
@@ -16,8 +16,9 @@ export async function GET(
 
   const { id } = await params;
 
+  // Try slug first, then UUID id
   const project = await db.query.projects.findFirst({
-    where: eq(projects.id, id),
+    where: or(eq(projects.slug, id), eq(projects.id, id)),
   });
 
   if (!project) {
@@ -43,7 +44,7 @@ export async function PATCH(
   const updatedProject = await db
     .update(projects)
     .set({ ...body, updatedAt: new Date() })
-    .where(eq(projects.id, id))
+    .where(or(eq(projects.slug, id), eq(projects.id, id)))
     .returning();
 
   if (updatedProject.length === 0) {
@@ -65,7 +66,7 @@ export async function DELETE(
 
   const { id } = await params;
 
-  await db.delete(projects).where(eq(projects.id, id));
+  await db.delete(projects).where(or(eq(projects.slug, id), eq(projects.id, id)));
 
   return NextResponse.json({ success: true });
 }

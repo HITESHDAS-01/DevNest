@@ -3,6 +3,7 @@ import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { blockers } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { resolveProjectId } from '@/lib/db/helpers';
 
 export async function GET(
   request: Request,
@@ -14,9 +15,13 @@ export async function GET(
   }
 
   const { id } = await params;
+  const projectId = await resolveProjectId(id);
+  if (!projectId) {
+    return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+  }
 
   const projectBlockers = await db.query.blockers.findMany({
-    where: eq(blockers.projectId, id),
+    where: eq(blockers.projectId, projectId),
     orderBy: (b, { desc: d }) => [d(b.createdAt)],
   });
 
@@ -33,6 +38,11 @@ export async function POST(
   }
 
   const { id } = await params;
+  const projectId = await resolveProjectId(id);
+  if (!projectId) {
+    return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+  }
+
   const body = await request.json();
   const { title, description, severity, taskId } = body;
 
@@ -43,7 +53,7 @@ export async function POST(
   const newBlocker = await db
     .insert(blockers)
     .values({
-      projectId: id,
+      projectId,
       title,
       description,
       severity: severity || 'medium',

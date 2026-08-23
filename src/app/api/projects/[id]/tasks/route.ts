@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { tasks, projects } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { tasks } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
+import { resolveProjectId } from '@/lib/db/helpers';
 
 export async function GET(
   request: Request,
@@ -15,9 +16,13 @@ export async function GET(
   }
 
   const { id } = await params;
+  const projectId = await resolveProjectId(id);
+  if (!projectId) {
+    return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+  }
 
   const projectTasks = await db.query.tasks.findMany({
-    where: eq(tasks.projectId, id),
+    where: eq(tasks.projectId, projectId),
     orderBy: (tasks, { asc }) => [asc(tasks.order)],
   });
 
@@ -35,6 +40,11 @@ export async function POST(
   }
 
   const { id } = await params;
+  const projectId = await resolveProjectId(id);
+  if (!projectId) {
+    return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+  }
+
   const body = await request.json();
   const { title, description, priority, estimateMinutes, milestoneId, dueDate } = body;
 
@@ -42,9 +52,8 @@ export async function POST(
     return NextResponse.json({ error: 'Title is required' }, { status: 400 });
   }
 
-  // Get highest order
   const existingTasks = await db.query.tasks.findMany({
-    where: eq(tasks.projectId, id),
+    where: eq(tasks.projectId, projectId),
     orderBy: (tasks, { desc }) => [desc(tasks.order)],
   });
 
@@ -53,7 +62,7 @@ export async function POST(
   const newTask = await db
     .insert(tasks)
     .values({
-      projectId: id,
+      projectId,
       title,
       description,
       priority: priority || 3,

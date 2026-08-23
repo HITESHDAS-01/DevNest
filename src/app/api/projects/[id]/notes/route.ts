@@ -3,6 +3,7 @@ import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { notes } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { resolveProjectId } from '@/lib/db/helpers';
 
 export async function GET(
   request: Request,
@@ -14,9 +15,13 @@ export async function GET(
   }
 
   const { id } = await params;
+  const projectId = await resolveProjectId(id);
+  if (!projectId) {
+    return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+  }
 
   const projectNotes = await db.query.notes.findMany({
-    where: eq(notes.projectId, id),
+    where: eq(notes.projectId, projectId),
     orderBy: (n, { desc: d }) => [d(n.pinned), d(n.updatedAt)],
   });
 
@@ -33,6 +38,10 @@ export async function POST(
   }
 
   const { id } = await params;
+  const projectId = await resolveProjectId(id);
+  if (!projectId) {
+    return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+  }
   const body = await request.json();
   const { title, content, tags, pinned } = body;
 
@@ -43,7 +52,7 @@ export async function POST(
   const newNote = await db
     .insert(notes)
     .values({
-      projectId: id,
+      projectId: projectId,
       title,
       content,
       tags: tags || [],

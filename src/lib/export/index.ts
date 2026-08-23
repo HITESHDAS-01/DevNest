@@ -28,7 +28,10 @@ export interface ProjectExport {
   activityLog: any[];
 }
 
-export async function exportProject(projectId: string): Promise<ProjectExport> {
+export async function exportProject(slugOrId: string): Promise<ProjectExport> {
+  const resolvedId = await (await import('@/lib/db/helpers')).resolveProjectId(slugOrId);
+  const projectId = resolvedId || slugOrId;
+
   const project = await db.query.projects.findFirst({
     where: eq(projects.id, projectId),
   });

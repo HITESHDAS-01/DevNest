@@ -41,20 +41,32 @@ export default function NewProjectPage() {
     e.preventDefault();
     setLoading(true);
 
-    // TODO: Create project via API
-    console.log({
-      name,
-      description,
-      color,
-      repoUrl,
-      priority: parseInt(priority),
-    });
+    try {
+      const res = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          description,
+          color,
+          repoUrl: repoUrl || undefined,
+          priority: parseInt(priority),
+        }),
+      });
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (!res.ok) {
+        const data = await res.json();
+        console.error('Failed to create project:', data.error);
+        return;
+      }
 
-    setLoading(false);
-    router.push('/projects');
+      const { project } = await res.json();
+      router.push(`/projects/${project.slug}`);
+    } catch (err) {
+      console.error('Failed to create project:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const slug = name
